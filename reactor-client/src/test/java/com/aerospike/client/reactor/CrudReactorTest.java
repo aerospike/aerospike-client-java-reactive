@@ -77,7 +77,7 @@ public class CrudReactorTest extends ReactorTest {
 		Mono<KeyRecord> mono = succeedAfterRetries(reactorClient.put(key, bin), putFailsCount, new ConnectException())
 				.flatMap(key1 -> succeedAfterRetries(reactorClient.get(key), getFailsCount, new ConnectException()))
 				.doOnNext(keyRecord -> assertBinEqual(keyRecord.key, keyRecord.record, bin))
-				.retry(putFailsCount.get() * getFailsCount.get() + 1, t -> t instanceof ConnectException);
+				.retry(putFailsCount.get() * getFailsCount.get() + 1);
 
 		StepVerifier.create(mono)
 				.expectNextMatches(checkKeyRecord(key, binName, binValue))
@@ -104,6 +104,5 @@ public class CrudReactorTest extends ReactorTest {
 		StepVerifier.create(mono)
 				.verifyComplete();
 	}
-
 
 }

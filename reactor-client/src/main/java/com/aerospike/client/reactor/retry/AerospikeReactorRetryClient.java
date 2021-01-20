@@ -16,19 +16,9 @@
  */
 package com.aerospike.client.reactor.retry;
 
-import com.aerospike.client.AerospikeException;
-import com.aerospike.client.BatchRead;
-import com.aerospike.client.Bin;
-import com.aerospike.client.Key;
-import com.aerospike.client.Operation;
-import com.aerospike.client.Value;
+import com.aerospike.client.*;
 import com.aerospike.client.cluster.Node;
-import com.aerospike.client.policy.BatchPolicy;
-import com.aerospike.client.policy.InfoPolicy;
-import com.aerospike.client.policy.Policy;
-import com.aerospike.client.policy.QueryPolicy;
-import com.aerospike.client.policy.ScanPolicy;
-import com.aerospike.client.policy.WritePolicy;
+import com.aerospike.client.policy.*;
 import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
 import com.aerospike.client.query.KeyRecord;
@@ -38,28 +28,23 @@ import com.aerospike.client.reactor.dto.KeyExists;
 import com.aerospike.client.reactor.dto.KeyObject;
 import com.aerospike.client.reactor.dto.KeysExists;
 import com.aerospike.client.reactor.dto.KeysRecords;
-import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
-/**
- * Allows to setup retry policy for all operations
- * @author Sergii Karpenko
- */
 public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	private final IAerospikeReactorClient client;
-	private final Function<Flux<Throwable>, ? extends Publisher<?>> whenFactory;
+	private final Retry retryPolicy;
 
 	public AerospikeReactorRetryClient(IAerospikeReactorClient client,
-									   Function<Flux<Throwable>, ? extends Publisher<?>> whenFactory) {
+									   Retry retryPolicy) {
 		this.client = client;
-		this.whenFactory = whenFactory;
+		this.retryPolicy = retryPolicy;
 	}
 
 	@Override
@@ -74,12 +59,12 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<KeyRecord> get(Policy policy, Key key) throws AerospikeException {
-		return client.get(policy, key).retryWhen(whenFactory);
+		return client.get(policy, key).retryWhen(retryPolicy);
 	}
 
 	@Override
 	public final Mono<KeyRecord> get(Policy policy, Key key, String[] binNames) throws AerospikeException {
-		return client.get(policy, key, binNames).retryWhen(whenFactory);
+		return client.get(policy, key, binNames).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -89,7 +74,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<KeysRecords> get(BatchPolicy policy, Key[] keys) throws AerospikeException {
-		return client.get(policy, keys).retryWhen(whenFactory);
+		return client.get(policy, keys).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -99,7 +84,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<List<BatchRead>> get(BatchPolicy policy, List<BatchRead> records) throws AerospikeException {
-		return client.get(policy, records).retryWhen(whenFactory);
+		return client.get(policy, records).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -109,7 +94,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Flux<BatchRead> getFlux(BatchPolicy policy, List<BatchRead> records) throws AerospikeException {
-		return client.getFlux(policy, records).retryWhen(whenFactory);
+		return client.getFlux(policy, records).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -119,7 +104,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Flux<KeyRecord> getFlux(BatchPolicy policy, Key[] keys) throws AerospikeException {
-		return client.getFlux(policy, keys).retryWhen(whenFactory);
+		return client.getFlux(policy, keys).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -129,7 +114,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<KeyRecord> getHeader(Policy policy, Key key) throws AerospikeException {
-		return client.getHeader(policy, key).retryWhen(whenFactory);
+		return client.getHeader(policy, key).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -139,7 +124,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<KeysRecords> getHeaders(BatchPolicy policy, Key[] keys) throws AerospikeException {
-		return client.getHeaders(policy, keys).retryWhen(whenFactory);
+		return client.getHeaders(policy, keys).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -149,7 +134,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<Key> touch(WritePolicy policy, Key key) throws AerospikeException {
-		return client.touch(policy, key).retryWhen(whenFactory);
+		return client.touch(policy, key).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -159,7 +144,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<Key> exists(Policy policy, Key key) throws AerospikeException {
-		return client.exists(policy, key).retryWhen(whenFactory);
+		return client.exists(policy, key).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -169,7 +154,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<KeysExists> exists(BatchPolicy policy, Key[] keys) throws AerospikeException{
-		return client.exists(policy, keys).retryWhen(whenFactory);
+		return client.exists(policy, keys).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -179,7 +164,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Flux<KeyExists> existsFlux(BatchPolicy policy, Key[] keys) throws AerospikeException {
-		return client.existsFlux(policy, keys).retryWhen(whenFactory);
+		return client.existsFlux(policy, keys).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -189,7 +174,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<Key> put(WritePolicy policy, Key key, Bin... bins) throws AerospikeException {
-		return client.put(policy, key, bins).retryWhen(whenFactory);
+		return client.put(policy, key, bins).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -199,7 +184,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<Key> append(WritePolicy policy, Key key, Bin... bins) throws AerospikeException {
-		return client.append(policy, key, bins).retryWhen(whenFactory);
+		return client.append(policy, key, bins).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -209,7 +194,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<Key> prepend(WritePolicy policy, Key key, Bin... bins) throws AerospikeException {
-		return client.prepend(policy, key, bins).retryWhen(whenFactory);
+		return client.prepend(policy, key, bins).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -219,7 +204,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<Key> add(WritePolicy policy, Key key, Bin... bins) throws AerospikeException {
-		return client.add(policy, key, bins).retryWhen(whenFactory);
+		return client.add(policy, key, bins).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -229,7 +214,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<Key> delete(WritePolicy policy, Key key) throws AerospikeException {
-		return client.delete(policy, key).retryWhen(whenFactory);
+		return client.delete(policy, key).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -239,7 +224,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Mono<KeyRecord> operate(WritePolicy policy, Key key, Operation... operations) throws AerospikeException {
-		return client.operate(policy, key, operations).retryWhen(whenFactory);
+		return client.operate(policy, key, operations).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -249,7 +234,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Flux<KeyRecord> query(QueryPolicy policy, Statement statement) throws AerospikeException {
-		return client.query(policy, statement).retryWhen(whenFactory);
+		return client.query(policy, statement).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -259,7 +244,7 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 
 	@Override
 	public final Flux<KeyRecord> scanAll(ScanPolicy policy, String namespace, String setName, String... binNames) throws AerospikeException {
-		return client.scanAll(policy, namespace, setName, binNames).retryWhen(whenFactory);
+		return client.scanAll(policy, namespace, setName, binNames).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -270,29 +255,29 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 	@Override
 	public final Mono<KeyObject> execute(WritePolicy policy, Key key,
 								   String packageName, String functionName, Value... functionArgs) throws AerospikeException {
-		return client.execute(policy, key, packageName, functionName, functionArgs).retryWhen(whenFactory);
+		return client.execute(policy, key, packageName, functionName, functionArgs).retryWhen(retryPolicy);
 	}
 
 	@Override
 	public Mono<String> info(InfoPolicy infoPolicy, Node node, String command){
-		return client.info(infoPolicy, node, command).retryWhen(whenFactory);
+		return client.info(infoPolicy, node, command).retryWhen(retryPolicy);
 	}
 
 	@Override
 	public Mono<Map<String,String>> info(InfoPolicy infoPolicy, Node node, List<String> commands){
-		return client.info(infoPolicy, node, commands).retryWhen(whenFactory);
+		return client.info(infoPolicy, node, commands).retryWhen(retryPolicy);
     }
 
 	@Override
 	public Mono<Void> createIndex(Policy policy,
 								  String namespace, String setName, String indexName, String binName,
 								  IndexType indexType, IndexCollectionType indexCollectionType){
-		return client.createIndex(policy, namespace, setName, indexName, binName, indexType, indexCollectionType).retryWhen(whenFactory);
+		return client.createIndex(policy, namespace, setName, indexName, binName, indexType, indexCollectionType).retryWhen(retryPolicy);
 	}
 
 	@Override
 	public Mono<Void> dropIndex(Policy policy, String namespace, String setName, String indexName){
-		return client.dropIndex(policy, namespace, setName, indexName).retryWhen(whenFactory);
+		return client.dropIndex(policy, namespace, setName, indexName).retryWhen(retryPolicy);
 	}
 
 	@Override
