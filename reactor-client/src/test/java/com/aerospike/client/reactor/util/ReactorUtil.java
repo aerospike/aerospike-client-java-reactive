@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ReactorUtil {
 
 	public static <T> Mono<T> succeedAfterRetries(Mono<T> mono, AtomicInteger failsCount, Throwable t){
-		return Mono.subscriberContext()
+		return Mono.deferContextual(Mono::just)
 				.flatMap(context -> {
 					if(failsCount.get() > 0){
 						failsCount.decrementAndGet();
