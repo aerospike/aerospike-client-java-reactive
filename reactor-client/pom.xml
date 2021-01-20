@@ -17,12 +17,12 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <reactor.version>3.1.8.RELEASE</reactor.version>
-    <assertj.version>3.9.0</assertj.version>
+    <reactor.version>3.4.2</reactor.version>
+    <assertj.version>3.18.1</assertj.version>
     <netcrusher.version>0.10</netcrusher.version>
 
     <skipTests>true</skipTests>
-    <mockito.version>3.3.0</mockito.version>
+    <mockito.version>3.7.7</mockito.version>
   </properties>
 
   <dependencies>
