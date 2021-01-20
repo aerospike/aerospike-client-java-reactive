@@ -3,7 +3,6 @@ package com.aerospike.client.reactor.retry;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
-import com.aerospike.client.policy.Policy;
 import com.aerospike.client.query.KeyRecord;
 import com.aerospike.client.reactor.IAerospikeReactorClient;
 import com.aerospike.client.reactor.ReactorTest;
@@ -23,7 +22,7 @@ import static com.aerospike.client.reactor.retry.RetryFactories.retryOnNoMoreCon
 
 public class RetryOnConnectionTest extends ReactorTest {
 
-    public static final int CALLS_NO = 400;
+    public static final int CALLS_NO = 700;
     private final String binName = args.getBinName("rtronconn");
 
     public RetryOnConnectionTest(Args args) {
@@ -43,7 +42,7 @@ public class RetryOnConnectionTest extends ReactorTest {
                 IntStream.range(0, CALLS_NO)
                         .mapToObj(value -> reactorClient.get(key))
                         .collect(Collectors.toList()),
-                a -> Arrays.asList((KeyRecord[])a));
+                a -> Arrays.stream(a).map(e -> (KeyRecord)e).collect(Collectors.toList()));
 
 
         StepVerifier.create(monoKeys)
@@ -67,7 +66,7 @@ public class RetryOnConnectionTest extends ReactorTest {
         Mono<List<Object>> monoKeys = Mono.zip(
                 IntStream.range(0, CALLS_NO)
                         .mapToObj(value -> retryClient.get(key)
-                                .subscribeOn(Schedulers.elastic())
+                                .subscribeOn(Schedulers.boundedElastic())
                                 .doOnNext(keyRecord -> System.out.println(value)))
                         .collect(Collectors.toList()),
                 Arrays::asList);
