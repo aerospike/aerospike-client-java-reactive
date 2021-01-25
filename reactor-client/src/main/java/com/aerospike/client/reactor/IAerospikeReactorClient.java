@@ -45,19 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public interface IAerospikeReactorClient extends Closeable{
-
-	Policy getReadPolicyDefault();
-
-	WritePolicy getWritePolicyDefault();
-
-	ScanPolicy getScanPolicyDefault();
-
-	QueryPolicy getQueryPolicyDefault();
-
-	BatchPolicy getBatchPolicyDefault();
-
-	InfoPolicy getInfoPolicyDefault();
+public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeable {
 
 	/**
 	 * Reactively read entire record for specified key.
