@@ -13,6 +13,8 @@
     </modules>
 
     <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -21,7 +23,11 @@
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
         <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.7</nexus-staging-maven-plugin.version>
+        <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
+        <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
 
+        <aerospike-client.version>5.0.3</aerospike-client.version>
         <netty.version>4.1.58.Final</netty.version>
         <commons-cli.version>1.2</commons-cli.version>
         <junit.version>4.13.1</junit.version>
@@ -35,12 +41,16 @@
         </license>
     </licenses>
 
+    <scm>
+        <url>https://github.com/aerospike/aerospike-client-java-reactive</url>
+    </scm>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.aerospike</groupId>
                 <artifactId>aerospike-client</artifactId>
-                <version>${project.version}</version>
+                <version>${aerospike-client.version}</version>
             </dependency>
 
             <dependency>
@@ -111,32 +121,44 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>${nexus-staging-maven-plugin.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <serverId>ossrh</serverId>
+                        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                        <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${maven-source-plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${maven-gpg-plugin.version}</version>
+                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <version>1.5</version>
-                    <executions>
-                        <execution>
-                            <id>sign-artifacts</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>sign</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
