@@ -1,11 +1,12 @@
 # aerospike-client-java-reactive
 ![Build](https://github.com/aerospike/aerospike-client-java-reactive/workflows/Build/badge.svg)
-
-## Packages
-* [Aerospike Reactor Client](./reactor-client)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aerospike/aerospike-reactor-client/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.aerospike/aerospike-reactor-client/)
 [![javadoc](https://javadoc.io/badge2/com.aerospike/aerospike-reactor-client/javadoc.svg)](https://javadoc.io/doc/com.aerospike/aerospike-reactor-client)  
-  [Reactor](https://projectreactor.io/) interface extension to the Aerospike Java client.
+
+This package is a [Reactor](https://projectreactor.io/) interface extention for the Aerospike Java Client. It allows the use of ractive oprations using the Aerospike Java Client.
+
+## Packages
+* [Aerospike Reactor Client](./reactor-client).
 
 ## Prerequisites
 * Java 8 or greater.
@@ -15,3 +16,7 @@
 ```sh
 mvn clean package
 ```
+## Usage
+The documentation for this project can be found on [javadoc.io](https://javadoc.io/doc/com.aerospike/aerospike-reactor-client).
+
+This project can be added through [Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aerospike/aerospike-reactor-client/).
