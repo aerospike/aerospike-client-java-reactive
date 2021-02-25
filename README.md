@@ -1,7 +1,5 @@
 # aerospike-client-java-reactive
 ![Build](https://github.com/aerospike/aerospike-client-java-reactive/workflows/Build/badge.svg)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aerospike/aerospike-reactor-client/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.aerospike/aerospike-reactor-client/)
-[![javadoc](https://javadoc.io/badge2/com.aerospike/aerospike-reactor-client/javadoc.svg)](https://javadoc.io/doc/com.aerospike/aerospike-reactor-client)  
 
 This repository allows the use of ractive oprations using the Aerospike Java Client thorugh different reactive clients.
 
@@ -10,9 +8,7 @@ This repository allows the use of ractive oprations using the Aerospike Java Cli
 [![javadoc](https://javadoc.io/badge2/com.aerospike/aerospike-reactor-client/javadoc.svg)](https://javadoc.io/doc/com.aerospike/aerospike-reactor-client)  
 
 ### Package
-[Aerospike Reactor Client](./reactor-client).
-
-[Reactor](https://projectreactor.io/) interface extention for the Aerospike Java Client.
+[Aerospike Reactor Client](./reactor-client) - a [Reactor](https://projectreactor.io/) interface extention for the Aerospike Java Client.
 
 ### Usage
 The documentation for this project can be found on [javadoc.io](https://javadoc.io/doc/com.aerospike/aerospike-reactor-client).
