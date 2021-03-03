@@ -88,7 +88,6 @@ abstract public class ReactorTest {
 		}
 
 		try {
-
 			ClientPolicy policy = new ClientPolicy();
 			policy.eventLoops = eventLoops;
 			policy.user = args.user;
@@ -98,7 +97,7 @@ abstract public class ReactorTest {
 
 			Host[] hosts = Host.parseHosts(args.host, args.port);
 			this.client = new AerospikeClient(policy, hosts);
-			this.reactorClient = new AerospikeReactorClient(client, eventLoops);
+			this.reactorClient = new AerospikeReactorClient(client);
 
 			try {
 				args.setServerSpecific(client);
@@ -115,7 +114,7 @@ abstract public class ReactorTest {
 	}
 
 	@After
-	public void destroy() throws Exception {
+	public void destroy() {
 		reactorClient.close();
 		eventLoops.close();
 	}
