@@ -15,6 +15,36 @@ The documentation for this project can be found on [javadoc.io](https://javadoc.
 
 This project can be added thorugh [Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aerospike/aerospike-reactor-client/).
 
+Create a Reactor client
+```java
+// Create a ClientPolicy.
+ClientPolicy policy = new ClientPolicy();
+// Set event loops to use in asynchronous commands.
+policy.eventLoops = new NioEventLoops(1);
+
+// Instantiate an AerospikeReactorClient which embeds an AerospikeClient.
+AerospikeClient client = new AerospikeClient(policy, "localhost", 3000);
+AerospikeReactorClient reactorClient = new AerospikeReactorClient(client);
+```
+
+Write record bin(s) using the Reactor client
+```java
+Key key = new Key("test", null, "k1");
+reactorClient.put(key, new Bin("bin1", 100)).block();
+```
+
+Get the record using the Reactor client
+```java
+reactorClient.get(key).block();
+```
+
+Delete the record using the Reactor client
+```java
+reactorClient.delete(key).block();
+```
+
+Check the tests for more usage examples.
+
 ### Prerequisites
 * Java 8 or greater.
 * Maven 3.0 or greater.
