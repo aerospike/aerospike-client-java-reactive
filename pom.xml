@@ -5,6 +5,8 @@
     <groupId>com.aerospike</groupId>
     <artifactId>aerospike-client-java-reactive</artifactId>
     <name>aerospike-client-java-reactive</name>
+    <description>aerospike-client-java-reactive</description>
+    <url>https://github.com/aerospike/aerospike-client-java-reactive</url>
     <version>5.0.3</version>
     <packaging>pom</packaging>
 
@@ -13,7 +15,7 @@
     </modules>
 
     <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.deploy.skip>false</maven.deploy.skip>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -41,8 +43,36 @@
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <id>Sergii Karpenko</id>
+            <name>Sergii Karpenko</name>
+            <email>skarpenko@playtika.com</email>
+            <url>https://www.playtika.com</url>
+            <organization>Playtika</organization>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+3</timezone>
+        </developer>
+        <developer>
+            <id>Eugene Rizhkov</id>
+            <name>Eugene Rizhkov</name>
+            <email>yrizhkov@aerospike.com</email>
+            <url>https://www.aerospike.com</url>
+            <organization>Aerospike</organization>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+3</timezone>
+        </developer>
+    </developers>
+
     <scm>
         <url>https://github.com/aerospike/aerospike-client-java-reactive</url>
+        <connection>scm:git:git://github.com/aerospike/aerospike-client-java-reactive.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:aerospike/aerospike-client-java-reactive.git
+        </developerConnection>
     </scm>
 
     <dependencyManagement>
@@ -166,6 +196,22 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
 </project>
