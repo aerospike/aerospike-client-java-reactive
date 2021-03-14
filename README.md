@@ -13,7 +13,7 @@ This repository provides reactive extensions for the Aerospike Java Client.
 ### Usage
 The documentation for this project can be found on [javadoc.io](https://javadoc.io/doc/com.aerospike/aerospike-reactor-client).
 
-This project can be added thorugh [Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aerospike/aerospike-reactor-client/).
+This project can be added through [Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aerospike/aerospike-reactor-client/).
 
 Create a Reactor client
 ```java
