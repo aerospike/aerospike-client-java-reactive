@@ -16,12 +16,7 @@
  */
 package com.aerospike.client.reactor;
 
-import com.aerospike.client.AerospikeException;
-import com.aerospike.client.BatchRead;
-import com.aerospike.client.Bin;
-import com.aerospike.client.Key;
-import com.aerospike.client.Operation;
-import com.aerospike.client.Value;
+import com.aerospike.client.*;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.policy.BatchPolicy;
 import com.aerospike.client.policy.InfoPolicy;
@@ -43,7 +38,6 @@ import reactor.core.publisher.Mono;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
-
 
 public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeable {
 
@@ -681,4 +675,8 @@ public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeabl
 			String indexName
 	);
 
+	/**
+	 * Return the original non-reactive Aerospike Client
+	 */
+	IAerospikeClient getAerospikeClient();
 }

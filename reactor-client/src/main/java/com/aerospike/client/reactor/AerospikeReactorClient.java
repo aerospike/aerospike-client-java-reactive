@@ -353,6 +353,11 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 				policy != null ? new InfoPolicy(policy) : aerospikeClient.getInfoPolicyDefault());
 	}
 
+	@Override
+	public IAerospikeClient getAerospikeClient() {
+		return aerospikeClient;
+	}
+
 	private Mono<AsyncIndexTask> createIndexImpl(Policy policy,
 											 String namespace, String setName, String indexName, String binName,
 											 IndexType indexType, IndexCollectionType indexCollectionType){
@@ -411,5 +416,4 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 	public InfoPolicy getInfoPolicyDefault() {
 		return aerospikeClient.getInfoPolicyDefault();
 	}
-
 }

@@ -281,6 +281,11 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 	}
 
 	@Override
+	public IAerospikeClient getAerospikeClient() {
+		return client.getAerospikeClient();
+	}
+
+	@Override
 	public Policy getReadPolicyDefault() {
 		return client.getReadPolicyDefault();
 	}
@@ -309,5 +314,4 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 	public InfoPolicy getInfoPolicyDefault() {
 		return client.getInfoPolicyDefault();
 	}
-
 }
