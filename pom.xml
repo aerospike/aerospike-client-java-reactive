@@ -29,8 +29,8 @@
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
         <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
 
-        <aerospike-client.version>5.0.3</aerospike-client.version>
-        <netty.version>4.1.58.Final</netty.version>
+        <aerospike-client.version>5.0.7</aerospike-client.version>
+        <netty.version>4.1.63.Final</netty.version>
         <commons-cli.version>1.2</commons-cli.version>
         <junit.version>4.13.1</junit.version>
         <slf4j-api.version>[1.7.25,)</slf4j-api.version>
@@ -45,26 +45,16 @@
 
     <developers>
         <developer>
-            <id>Sergii Karpenko</id>
             <name>Sergii Karpenko</name>
             <email>skarpenko@playtika.com</email>
             <url>https://www.playtika.com</url>
             <organization>Playtika</organization>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>+3</timezone>
         </developer>
         <developer>
-            <id>Eugene Rizhkov</id>
             <name>Eugene Rizhkov</name>
             <email>yrizhkov@aerospike.com</email>
             <url>https://www.aerospike.com</url>
             <organization>Aerospike</organization>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>+3</timezone>
         </developer>
     </developers>
 
@@ -105,6 +95,13 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-transport-native-epoll</artifactId>
                 <classifier>linux-x86_64</classifier>
+                <version>${netty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-native-kqueue</artifactId>
+                <classifier>osx-x86_64</classifier>
                 <version>${netty.version}</version>
             </dependency>
 
