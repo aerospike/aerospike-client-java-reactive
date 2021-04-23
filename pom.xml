@@ -7,7 +7,7 @@
     <name>aerospike-client-java-reactive</name>
     <description>aerospike-client-java-reactive</description>
     <url>https://github.com/aerospike/aerospike-client-java-reactive</url>
-    <version>5.0.3</version>
+    <version>5.0.7</version>
     <packaging>pom</packaging>
 
     <modules>
