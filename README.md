@@ -1,4 +1,5 @@
-# aerospike-client-java-reactive
+# Aerospike Reactive Java Client
+
 ![Build](https://github.com/aerospike/aerospike-client-java-reactive/workflows/Build/badge.svg)
 
 This repository provides reactive extensions for the Aerospike Java Client.
