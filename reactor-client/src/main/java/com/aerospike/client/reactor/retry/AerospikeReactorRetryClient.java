@@ -88,6 +88,16 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 	}
 
 	@Override
+	public Mono<KeysRecords> get(Key[] keys, Operation... operations) throws AerospikeException {
+		return get(null, keys, operations);
+	}
+
+	@Override
+	public Mono<KeysRecords> get(BatchPolicy policy, Key[] keys, Operation... operations) throws AerospikeException {
+		return client.get(policy, keys, operations).retryWhen(retryPolicy);
+	}
+
+	@Override
 	public final Flux<BatchRead> getFlux(List<BatchRead> records) throws AerospikeException {
 		return getFlux(null, records);
 	}
@@ -105,6 +115,16 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 	@Override
 	public final Flux<KeyRecord> getFlux(BatchPolicy policy, Key[] keys) throws AerospikeException {
 		return client.getFlux(policy, keys).retryWhen(retryPolicy);
+	}
+
+	@Override
+	public Flux<KeyRecord> getFlux(Key[] keys, Operation... operations) throws AerospikeException {
+		return getFlux(null, keys, operations);
+	}
+
+	@Override
+	public Flux<KeyRecord> getFlux(BatchPolicy policy, Key[] keys, Operation... operations) throws AerospikeException {
+		return client.getFlux(policy, keys, operations).retryWhen(retryPolicy);
 	}
 
 	@Override
