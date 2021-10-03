@@ -139,6 +139,39 @@ public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeabl
 	Mono<List<BatchRead>> get(BatchPolicy policy, List<BatchRead> records) throws AerospikeException;
 
 	/**
+	 * Reactively read multiple records for specified keys using read operations in one batch call.
+	 * This method registers the command with an event loop and returns.
+	 * The event loop thread will process the command and send the results to the listener.
+	 * <p>
+	 * The returned records are in positional order with the original key array order.
+	 * If a key is not found, the positional record will be null.
+	 * <p>
+	 * If a batch request to a node fails, the entire batch is cancelled.
+	 *
+	 * @param keys					array of unique record identifiers
+	 * @param operations			array of read operations on record
+	 * @throws AerospikeException	if event loop registration fails
+	 */
+	Mono<KeysRecords> get(Key[] keys, Operation... operations) throws AerospikeException;
+
+	/**
+	 * Reactively read multiple records for specified keys using read operations in one batch call.
+	 * This method registers the command with an event loop and returns.
+	 * The event loop thread will process the command and send the results to the listener.
+	 * <p>
+	 * The returned records are in positional order with the original key array order.
+	 * If a key is not found, the positional record will be null.
+	 * <p>
+	 * If a batch request to a node fails, the entire batch is cancelled.
+	 *
+	 * @param policy				batch configuration parameters, pass in null for defaults
+	 * @param keys					array of unique record identifiers
+	 * @param operations			array of read operations on record
+	 * @throws AerospikeException	if event loop registration fails
+	 */
+	Mono<KeysRecords> get(BatchPolicy policy, Key[] keys, Operation... operations) throws AerospikeException;
+
+	/**
 	 * Reactively read multiple records for specified batch keys in one batch call.
 	 * This method registers the command with an event loop and returns.
 	 * The event loop thread will process the command and send the results to the listener.
@@ -198,6 +231,41 @@ public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeabl
 	 * @throws AerospikeException	if event loop registration fails
 	 */
 	Flux<KeyRecord> getFlux(BatchPolicy policy, Key[] keys) throws AerospikeException;
+
+	/**
+	 * Reactively read multiple records for specified keys using read operations in one batch call.
+	 * This method registers the command with an event loop and returns.
+	 * The event loop thread will process the command and send the results to the listener.
+	 * <p>
+	 * Each record result is returned in separate onRecord() calls.
+	 * If a key is not found, the record will be null.
+	 * <p>
+	 * If a batch request to a node fails, responses from other nodes will continue to
+	 * be processed.
+	 *
+	 * @param keys					array of unique record identifiers
+	 * @param operations			array of read operations on record
+	 * @throws AerospikeException	if event loop registration fails
+	 */
+	Flux<KeyRecord> getFlux(Key[] keys, Operation... operations) throws AerospikeException;
+
+	/**
+	 * Reactively read multiple records for specified keys using read operations in one batch call.
+	 * This method registers the command with an event loop and returns.
+	 * The event loop thread will process the command and send the results to the listener.
+	 * <p>
+	 * Each record result is returned in separate onRecord() calls.
+	 * If a key is not found, the record will be null.
+	 * <p>
+	 * If a batch request to a node fails, responses from other nodes will continue to
+	 * be processed.
+	 *
+	 * @param policy				batch configuration parameters, pass in null for defaults
+	 * @param keys					array of unique record identifiers
+	 * @param operations			array of read operations on record
+	 * @throws AerospikeException	if event loop registration fails
+	 */
+	Flux<KeyRecord> getFlux(BatchPolicy policy, Key[] keys, Operation... operations) throws AerospikeException;
 
 	/**
 	 * Reactively read record generation and expiration only for specified key.  Bins are not read.

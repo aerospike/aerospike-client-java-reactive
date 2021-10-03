@@ -6,6 +6,9 @@ import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
 import com.aerospike.client.Operation;
 import com.aerospike.client.ResultCode;
+import com.aerospike.client.cdt.ListOperation;
+import com.aerospike.client.cdt.ListReturnType;
+import com.aerospike.client.policy.BatchPolicy;
 import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
 import com.aerospike.client.query.Statement;
@@ -37,6 +40,9 @@ public class RetryTest {
 
     public static final List<BatchRead> BATCH = asList(new BatchRead(KEY, BIN_NAMES), new BatchRead(KEY2, BIN_NAMES2));
 
+    private static final String LIST_BIN = "listBin";
+    public static final Operation[] OPS = new Operation[]{ListOperation.size(LIST_BIN), ListOperation.getByIndex(LIST_BIN, -1, ListReturnType.VALUE)};
+
     public static final AerospikeException.Connection NO_CONNECTION = new AerospikeException.Connection(ResultCode.NO_MORE_CONNECTIONS, "1");
     public static final AerospikeException.Timeout TIMEOUT = new AerospikeException.Timeout(1, false);
 
@@ -58,7 +64,7 @@ public class RetryTest {
     @Test
     public void shouldRetryGetWithBinNames(){
 
-        when(reactorClient.get(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(reactorClient.get(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.<String[]>any()))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.get(null, KEY, BIN_NAMES))
@@ -86,6 +92,16 @@ public class RetryTest {
     }
 
     @Test
+    public void shouldRetryBatchOperations(){
+
+        when(reactorClient.get(ArgumentMatchers.<BatchPolicy>any(), ArgumentMatchers.any(), ArgumentMatchers.<Operation>any()))
+                .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
+
+        StepVerifier.create(retryClient.get(KEYS, OPS))
+                .verifyError(AerospikeException.Timeout.class);
+    }
+
+    @Test
     public void shouldRetryGetFlux(){
 
         when(reactorClient.getFlux(ArgumentMatchers.any(), ArgumentMatchers.<Key[]>any()))
@@ -102,6 +118,16 @@ public class RetryTest {
                 .thenReturn(mockFluxErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.getFlux(BATCH))
+                .verifyError(AerospikeException.Timeout.class);
+    }
+
+    @Test
+    public void shouldRetryBatchFluxOperations(){
+
+        when(reactorClient.getFlux(ArgumentMatchers.<BatchPolicy>any(), ArgumentMatchers.any(), ArgumentMatchers.<Operation>any()))
+                .thenReturn(mockFluxErrors(NO_CONNECTION, TIMEOUT));
+
+        StepVerifier.create(retryClient.getFlux(KEYS, OPS))
                 .verifyError(AerospikeException.Timeout.class);
     }
 

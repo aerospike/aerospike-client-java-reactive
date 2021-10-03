@@ -16,10 +16,14 @@
  */
 package com.aerospike.client.reactor;
 
-import com.aerospike.client.BatchRead;
-import com.aerospike.client.Bin;
-import com.aerospike.client.Key;
+import com.aerospike.client.*;
 import com.aerospike.client.Record;
+import com.aerospike.client.cdt.ListOperation;
+import com.aerospike.client.cdt.ListReturnType;
+import com.aerospike.client.exp.Exp;
+import com.aerospike.client.exp.ExpOperation;
+import com.aerospike.client.exp.ExpReadFlags;
+import com.aerospike.client.exp.Expression;
 import com.aerospike.client.policy.WritePolicy;
 import com.aerospike.client.query.KeyRecord;
 import com.aerospike.client.reactor.dto.KeyExists;
@@ -33,17 +37,20 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BatchReactorTest extends ReactorTest {
-	private static final String keyPrefix = "batchkey";
-	private static final String valuePrefix = "batchvalue";
+	private static final String LIST_BIN = "listbin";
+	private static final String KEY_PREFIX = "batchkey";
+	private static final String VALUE_PREFIX = "batchvalue";
 	private final String binName = args.getBinName("batchbin");
-	private static final int size = 8;
+	private static final int SIZE = 8;
 	private Key[] sendKeys;
 	private Key[] notSendKeys;
 
@@ -53,24 +60,37 @@ public class BatchReactorTest extends ReactorTest {
 
 	@Before
 	public void fillData() {
-		sendKeys = new Key[size];
+		sendKeys = new Key[SIZE];
 
 		WritePolicy policy = new WritePolicy();
 		policy.expiration = 2592000;
 
 		Mono.zip(
-				IntStream.range(0, size)
+				IntStream.range(0, SIZE)
 						.mapToObj(i -> {
-							final Key key = new Key(args.namespace, args.set, keyPrefix + (i + 1));
+							final Key key = new Key(args.namespace, args.set, KEY_PREFIX + (i + 1));
 							sendKeys[i] = key;
-							Bin bin = new Bin(binName, valuePrefix + (i + 1));
-							return reactorClient.put(policy, key, bin);
+							Bin bin = new Bin(binName, VALUE_PREFIX + (i + 1));
+
+							List<Integer> list = new ArrayList<>();
+
+							for (int j = 0; j < (i + 1); j++) {
+								list.add(j * (i + 1));
+							}
+
+							Bin listBin = new Bin(LIST_BIN, list);
+
+							if ((i + 1) != 6) {
+								return reactorClient.put(policy, key, bin, listBin);
+							} else {
+								return reactorClient.put(policy, key, new Bin(binName, (i + 1)), listBin);
+							}
 						}).collect(Collectors.toList()),
 				objects -> objects).block();
 
 		notSendKeys = new Key[]{
-				new Key(args.namespace, args.set, keyPrefix+"absent1"),
-				new Key(args.namespace, args.set, keyPrefix+"absent2")
+				new Key(args.namespace, args.set, KEY_PREFIX +"absent1"),
+				new Key(args.namespace, args.set, KEY_PREFIX +"absent2")
 		};
 	}
 
@@ -132,7 +152,11 @@ public class BatchReactorTest extends ReactorTest {
 		StepVerifier.create(mono)
 				.expectNextMatches(keysRecords -> {
 					for (int i = 0; i < keysRecords.records.length; i++) {
-						assertBinEqual(keysRecords.keys[i], keysRecords.records[i], binName, valuePrefix + (i + 1));
+						if (i != 5) {
+							assertBinEqual(keysRecords.keys[i], keysRecords.records[i], binName, VALUE_PREFIX + (i + 1));
+						} else {
+							assertBinEqual(keysRecords.keys[i], keysRecords.records[i], binName, i + 1L);
+						}
 					}
 					return true;
 				})
@@ -175,7 +199,7 @@ public class BatchReactorTest extends ReactorTest {
 
 		StepVerifier.create(mono)
 				.expectNextMatches(keysRecords -> {
-					assertThat(keysRecords.records).hasSize(size);
+					assertThat(keysRecords.records).hasSize(SIZE);
 					for (int i = 0; i < keysRecords.records.length; i++) {
 						Record record = keysRecords.records[i];
 						assertRecordFound(keysRecords.keys[i], record);
@@ -191,25 +215,29 @@ public class BatchReactorTest extends ReactorTest {
 	public void batchReadComplex() {
 		// Batch gets into one call.
 		// Batch allows multiple namespaces in one call, but example test environment may only have one namespace.
+
+		// bin * 8
+		Expression exp = Exp.build(Exp.mul(Exp.intBin(binName), Exp.val(8)));
+		Operation[] ops = Operation.array(ExpOperation.read(binName, exp, ExpReadFlags.DEFAULT));
+
 		String[] bins = new String[] {binName};
-		List<BatchRead> records = new ArrayList<BatchRead>();
-		records.add(new BatchRead(new Key(args.namespace, args.set, keyPrefix + 1), bins));
-		records.add(new BatchRead(new Key(args.namespace, args.set, keyPrefix + 2), true));
-		records.add(new BatchRead(new Key(args.namespace, args.set, keyPrefix + 3), true));
-		records.add(new BatchRead(new Key(args.namespace, args.set, keyPrefix + 4), false));
-		records.add(new BatchRead(new Key(args.namespace, args.set, keyPrefix + 5), true));
-		records.add(new BatchRead(new Key(args.namespace, args.set, keyPrefix + 6), true));
-		records.add(new BatchRead(new Key(args.namespace, args.set, keyPrefix + 7), bins));
+		List<BatchRead> records = new ArrayList<>();
+		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 1), bins));
+		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 2), true));
+		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 3), true));
+		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 4), false));
+		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 5), true));
+		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 6), ops));
+		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 7), bins));
 
 		// This record should be found, but the requested bin will not be found.
-		records.add(new BatchRead(new Key(args.namespace, args.set, keyPrefix + 8), new String[] {"binnotfound"}));
+		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 8), new String[] {"binnotfound"}));
 
 		// This record should not be found.
 		records.add(new BatchRead(new Key(args.namespace, args.set, "keynotfound"), bins));
 
 		// Execute batch.
 		Mono<List<BatchRead>> mono = reactorClient.get(records);
-
 		StepVerifier.create(mono)
 				.expectNextMatches(batchReads -> {
 					List<BatchRead> recordsFound = batchReads.stream()
@@ -224,7 +252,7 @@ public class BatchReactorTest extends ReactorTest {
 									//readAllBeans == false
 									null,
 									"batchvalue5",
-									"batchvalue6",
+									48L,
 									"batchvalue7",
 									//no bean with name "binnotfound"
 									null);
@@ -232,6 +260,31 @@ public class BatchReactorTest extends ReactorTest {
 					return true;
 				})
 				.verifyComplete();
+	}
 
+	@Test
+	public void batchListOperate() {
+		Mono<KeysRecords> mono = reactorClient.get(sendKeys, ListOperation.size(LIST_BIN), ListOperation.getByIndex(LIST_BIN, -1, ListReturnType.VALUE));
+
+		StepVerifier.create(mono)
+				.expectNextMatches(keysRecords -> {
+					List<Record> recordsFound = Arrays.stream(keysRecords.records)
+							.filter(Objects::nonNull)
+							.collect(Collectors.toList());
+					assertThat(recordsFound).hasSize(8);
+					assertThat(recordsFound).extracting(record -> record.getValue(LIST_BIN).toString())
+							.containsExactly(
+									"[1, 0]",
+									"[2, 2]",
+									"[3, 6]",
+									"[4, 12]",
+									"[5, 20]",
+									"[6, 30]",
+									"[7, 42]",
+									"[8, 56]");
+
+					return true;
+				})
+				.verifyComplete();
 	}
 }
