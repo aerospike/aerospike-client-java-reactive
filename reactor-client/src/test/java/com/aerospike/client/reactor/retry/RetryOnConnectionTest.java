@@ -7,6 +7,7 @@ import com.aerospike.client.query.KeyRecord;
 import com.aerospike.client.reactor.IAerospikeReactorClient;
 import com.aerospike.client.reactor.ReactorTest;
 import com.aerospike.client.reactor.util.Args;
+import org.junit.Ignore;
 import org.junit.Test;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -30,6 +31,7 @@ public class RetryOnConnectionTest extends ReactorTest {
     }
 
     @Test
+    @Ignore
     public void shouldFailOnOutOfConnection(){
 
         String binValue = "value";
