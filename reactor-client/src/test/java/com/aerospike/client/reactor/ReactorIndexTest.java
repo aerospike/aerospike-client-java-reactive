@@ -69,7 +69,7 @@ public class ReactorIndexTest extends ReactorTest{
 
         StepVerifier.create(created)
                 .expectErrorMatches(throwable -> throwable instanceof AerospikeException
-                        && throwable.getMessage().equals("Error 201: Drop index failed: FAIL:201: Index does not exist on the system."))
+                        && throwable.getMessage().equals("Error 201: Drop index failed: FAIL:201: Index does not exist."))
                 .verify();
     }
 

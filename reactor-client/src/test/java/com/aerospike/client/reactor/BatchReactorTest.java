@@ -217,8 +217,8 @@ public class BatchReactorTest extends ReactorTest {
 		// Batch allows multiple namespaces in one call, but example test environment may only have one namespace.
 
 		// bin * 8
-		//Expression exp = Exp.build(Exp.mul(Exp.intBin(binName), Exp.val(8)));
-		//Operation[] ops = Operation.array(ExpOperation.read(binName, exp, ExpReadFlags.DEFAULT));
+		Expression exp = Exp.build(Exp.mul(Exp.intBin(binName), Exp.val(8)));
+		Operation[] ops = Operation.array(ExpOperation.read(binName, exp, ExpReadFlags.DEFAULT));
 
 		String[] bins = new String[] {binName};
 		List<BatchRead> records = new ArrayList<>();
@@ -227,7 +227,7 @@ public class BatchReactorTest extends ReactorTest {
 		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 3), true));
 		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 4), false));
 		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 5), true));
-		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 6), true));
+		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 6), ops));
 		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 7), bins));
 
 		// This record should be found, but the requested bin will not be found.
@@ -238,7 +238,6 @@ public class BatchReactorTest extends ReactorTest {
 
 		// Execute batch.
 		Mono<List<BatchRead>> mono = reactorClient.get(records);
-
 		StepVerifier.create(mono)
 				.expectNextMatches(batchReads -> {
 					List<BatchRead> recordsFound = batchReads.stream()
@@ -253,7 +252,7 @@ public class BatchReactorTest extends ReactorTest {
 									//readAllBeans == false
 									null,
 									"batchvalue5",
-									6L,
+									48L,
 									"batchvalue7",
 									//no bean with name "binnotfound"
 									null);
