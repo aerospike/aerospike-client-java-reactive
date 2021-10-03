@@ -15,8 +15,8 @@ public class ReactorIndexTest extends ReactorTest{
         super(args);
     }
 
-    private static String indexName = "rintindxtsts";
-    private static String binName = "rintbin";
+    private static final String indexName = "rintindxtsts";
+    private static final String binName = "rintbin";
 
     @Before
     public void before(){
@@ -56,7 +56,7 @@ public class ReactorIndexTest extends ReactorTest{
 
         StepVerifier.create(created)
                 .expectErrorMatches(throwable -> throwable instanceof AerospikeException
-                        && throwable.getMessage().equals("Error 200: Create index failed: FAIL:200: Index with the same name already exists or this bin has already been indexed."))
+                        && throwable.getMessage().contains("Create index failed"))
                 .verify();
 
         reactorClient.dropIndex(null, args.namespace, args.set, indexName).subscribe();
@@ -69,7 +69,7 @@ public class ReactorIndexTest extends ReactorTest{
 
         StepVerifier.create(created)
                 .expectErrorMatches(throwable -> throwable instanceof AerospikeException
-                        && throwable.getMessage().equals("Error 201: Drop index failed: FAIL:201: Index does not exist."))
+                        && throwable.getMessage().contains("Drop index failed"))
                 .verify();
     }
 
