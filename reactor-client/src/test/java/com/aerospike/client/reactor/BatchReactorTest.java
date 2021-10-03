@@ -20,6 +20,10 @@ import com.aerospike.client.*;
 import com.aerospike.client.Record;
 import com.aerospike.client.cdt.ListOperation;
 import com.aerospike.client.cdt.ListReturnType;
+import com.aerospike.client.exp.Exp;
+import com.aerospike.client.exp.ExpOperation;
+import com.aerospike.client.exp.ExpReadFlags;
+import com.aerospike.client.exp.Expression;
 import com.aerospike.client.policy.WritePolicy;
 import com.aerospike.client.query.KeyRecord;
 import com.aerospike.client.reactor.dto.KeyExists;
@@ -76,10 +80,10 @@ public class BatchReactorTest extends ReactorTest {
 
 							Bin listBin = new Bin(LIST_BIN, list);
 
-							if (i != 6) {
+							if ((i + 1) != 6) {
 								return reactorClient.put(policy, key, bin, listBin);
 							} else {
-								return reactorClient.put(policy, key, new Bin(binName, i + 1), listBin);
+								return reactorClient.put(policy, key, new Bin(binName, (i + 1)), listBin);
 							}
 						}).collect(Collectors.toList()),
 				objects -> objects).block();
@@ -148,7 +152,7 @@ public class BatchReactorTest extends ReactorTest {
 		StepVerifier.create(mono)
 				.expectNextMatches(keysRecords -> {
 					for (int i = 0; i < keysRecords.records.length; i++) {
-						if (i != 6) {
+						if (i != 5) {
 							assertBinEqual(keysRecords.keys[i], keysRecords.records[i], binName, VALUE_PREFIX + (i + 1));
 						} else {
 							assertBinEqual(keysRecords.keys[i], keysRecords.records[i], binName, i + 1L);
@@ -213,8 +217,8 @@ public class BatchReactorTest extends ReactorTest {
 		// Batch allows multiple namespaces in one call, but example test environment may only have one namespace.
 
 		// bin * 8
-		//Expression exp = Exp.build(Exp.mul(Exp.intBin(BIN_NAME), Exp.val(8)));
-		//Operation[] ops = Operation.array(ExpOperation.read(BIN_NAME, exp, ExpReadFlags.DEFAULT));
+		//Expression exp = Exp.build(Exp.mul(Exp.intBin(binName), Exp.val(8)));
+		//Operation[] ops = Operation.array(ExpOperation.read(binName, exp, ExpReadFlags.DEFAULT));
 
 		String[] bins = new String[] {binName};
 		List<BatchRead> records = new ArrayList<>();
@@ -249,8 +253,8 @@ public class BatchReactorTest extends ReactorTest {
 									//readAllBeans == false
 									null,
 									"batchvalue5",
-									"batchvalue6",
-									7L,
+									6L,
+									"batchvalue7",
 									//no bean with name "binnotfound"
 									null);
 
