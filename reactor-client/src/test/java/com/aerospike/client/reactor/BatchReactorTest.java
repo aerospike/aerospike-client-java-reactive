@@ -20,10 +20,6 @@ import com.aerospike.client.*;
 import com.aerospike.client.Record;
 import com.aerospike.client.cdt.ListOperation;
 import com.aerospike.client.cdt.ListReturnType;
-import com.aerospike.client.exp.Exp;
-import com.aerospike.client.exp.ExpOperation;
-import com.aerospike.client.exp.ExpReadFlags;
-import com.aerospike.client.exp.Expression;
 import com.aerospike.client.policy.WritePolicy;
 import com.aerospike.client.query.KeyRecord;
 import com.aerospike.client.reactor.dto.KeyExists;
@@ -49,7 +45,7 @@ public class BatchReactorTest extends ReactorTest {
 	private static final String LIST_BIN = "listbin";
 	private static final String KEY_PREFIX = "batchkey";
 	private static final String VALUE_PREFIX = "batchvalue";
-	private final String BIN_NAME = args.getBinName("batchbin");
+	private final String binName = args.getBinName("batchbin");
 	private static final int SIZE = 8;
 	private Key[] sendKeys;
 	private Key[] notSendKeys;
@@ -70,7 +66,7 @@ public class BatchReactorTest extends ReactorTest {
 						.mapToObj(i -> {
 							final Key key = new Key(args.namespace, args.set, KEY_PREFIX + (i + 1));
 							sendKeys[i] = key;
-							Bin bin = new Bin(BIN_NAME, VALUE_PREFIX + (i + 1));
+							Bin bin = new Bin(binName, VALUE_PREFIX + (i + 1));
 
 							List<Integer> list = new ArrayList<>();
 
@@ -83,7 +79,7 @@ public class BatchReactorTest extends ReactorTest {
 							if (i != 6) {
 								return reactorClient.put(policy, key, bin, listBin);
 							} else {
-								return reactorClient.put(policy, key, new Bin(BIN_NAME, i + 1), listBin);
+								return reactorClient.put(policy, key, new Bin(binName, i + 1), listBin);
 							}
 						}).collect(Collectors.toList()),
 				objects -> objects).block();
@@ -153,9 +149,9 @@ public class BatchReactorTest extends ReactorTest {
 				.expectNextMatches(keysRecords -> {
 					for (int i = 0; i < keysRecords.records.length; i++) {
 						if (i != 6) {
-							assertBinEqual(keysRecords.keys[i], keysRecords.records[i], BIN_NAME, VALUE_PREFIX + (i + 1));
+							assertBinEqual(keysRecords.keys[i], keysRecords.records[i], binName, VALUE_PREFIX + (i + 1));
 						} else {
-							assertBinEqual(keysRecords.keys[i], keysRecords.records[i], BIN_NAME, i + 1L);
+							assertBinEqual(keysRecords.keys[i], keysRecords.records[i], binName, i + 1L);
 						}
 					}
 					return true;
@@ -173,7 +169,7 @@ public class BatchReactorTest extends ReactorTest {
 				.consumeRecordedWith(results -> assertThat(results)
 						.extracting(keyRecord -> {
 							assertRecordFound(keyRecord.key, keyRecord.record);
-							assertThat(keyRecord.record.getValue(BIN_NAME)).isNotNull();
+							assertThat(keyRecord.record.getValue(binName)).isNotNull();
 							return true;
 						})
 						.containsOnly(true))
@@ -220,7 +216,7 @@ public class BatchReactorTest extends ReactorTest {
 		//Expression exp = Exp.build(Exp.mul(Exp.intBin(BIN_NAME), Exp.val(8)));
 		//Operation[] ops = Operation.array(ExpOperation.read(BIN_NAME, exp, ExpReadFlags.DEFAULT));
 
-		String[] bins = new String[] {BIN_NAME};
+		String[] bins = new String[] {binName};
 		List<BatchRead> records = new ArrayList<>();
 		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 1), bins));
 		records.add(new BatchRead(new Key(args.namespace, args.set, KEY_PREFIX + 2), true));
@@ -245,7 +241,7 @@ public class BatchReactorTest extends ReactorTest {
 							.filter(record -> record.record != null)
 							.collect(Collectors.toList());
 					assertThat(recordsFound).hasSize(8);
-					assertThat(recordsFound).extracting(record -> record.record.getValue(BIN_NAME))
+					assertThat(recordsFound).extracting(record -> record.record.getValue(binName))
 							.containsExactly(
 									"batchvalue1",
 									"batchvalue2",
@@ -264,7 +260,7 @@ public class BatchReactorTest extends ReactorTest {
 	}
 
 	@Test
-	public void asyncBatchListOperate() {
+	public void batchListOperate() {
 		Mono<KeysRecords> mono = reactorClient.get(sendKeys, ListOperation.size(LIST_BIN), ListOperation.getByIndex(LIST_BIN, -1, ListReturnType.VALUE));
 
 		StepVerifier.create(mono)
