@@ -23,7 +23,7 @@
         <assertj.version>3.19.0</assertj.version>
         <netcrusher.version>0.10</netcrusher.version>
 
-        <skipTests>true</skipTests>
+        <skipTests>false</skipTests>
         <mockito.version>3.9.0</mockito.version>
     </properties>
 
