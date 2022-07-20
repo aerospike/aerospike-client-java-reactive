@@ -88,17 +88,16 @@ public class BatchReactorFailTest extends ReactorFailTest {
 		Mono<KeysExists> mono = proxyReactorClient.exists(strictBatchPolicy(), sendKeys);
 
 		StepVerifier.create(mono)
-				.expectError(AerospikeException.Timeout.class)
+				.expectError(AerospikeException.class)
 				.verify();
 	}
 
 	@Test
 	public void shouldFailOnBatchExistsSequence() {
-
 		Flux<KeyRecord> flux = proxyReactorClient.getFlux(strictBatchPolicy(), sendKeys);
 
 		StepVerifier.create(flux)
-				.expectError(AerospikeException.Timeout.class)
+				.expectError(AerospikeException.class)
 				.verify();
 	}
 
@@ -107,7 +106,7 @@ public class BatchReactorFailTest extends ReactorFailTest {
 		Mono<KeysRecords> mono = proxyReactorClient.get(strictBatchPolicy(), sendKeys);
 
 		StepVerifier.create(mono)
-				.expectError(AerospikeException.Timeout.class)
+				.expectError(AerospikeException.class)
 				.verify();
 	}
 
@@ -116,7 +115,7 @@ public class BatchReactorFailTest extends ReactorFailTest {
 		Flux<KeyRecord> flux = proxyReactorClient.getFlux(strictBatchPolicy(), sendKeys);
 
 		StepVerifier.create(flux)
-				.expectError(AerospikeException.Timeout.class)
+				.expectError(AerospikeException.class)
 				.verify();
 	}
 
@@ -125,7 +124,7 @@ public class BatchReactorFailTest extends ReactorFailTest {
 		Mono<KeysRecords> mono = proxyReactorClient.getHeaders(strictBatchPolicy(), sendKeys);
 
 		StepVerifier.create(mono)
-				.expectError(AerospikeException.Timeout.class)
+				.expectError(AerospikeException.class)
 				.verify();
 	}
 
@@ -153,17 +152,17 @@ public class BatchReactorFailTest extends ReactorFailTest {
 		Mono<List<BatchRead>> mono = proxyReactorClient.get(strictBatchPolicy(), records);
 
 		StepVerifier.create(mono)
-				.expectError(AerospikeException.Timeout.class)
+				.expectError(AerospikeException.class)
 				.verify();
-
 	}
 
 	@Test
 	public void shouldFailOnBatchListOperate() {
-		Mono<KeysRecords> mono = proxyReactorClient.get(strictBatchPolicy(), sendKeys, ListOperation.size(LIST_BIN), ListOperation.getByIndex(LIST_BIN, -1, ListReturnType.VALUE));
+		Mono<KeysRecords> mono = proxyReactorClient.get(strictBatchPolicy(), sendKeys, ListOperation.size(LIST_BIN),
+				ListOperation.getByIndex(LIST_BIN, -1, ListReturnType.VALUE));
 
 		StepVerifier.create(mono)
-				.expectError(AerospikeException.Timeout.class)
+				.expectError(AerospikeException.class)
 				.verify();
 	}
 }

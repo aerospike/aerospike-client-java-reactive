@@ -19,6 +19,7 @@ package com.aerospike.client.reactor;
 import com.aerospike.client.*;
 import com.aerospike.client.async.AsyncIndexTask;
 import com.aerospike.client.async.EventLoops;
+import com.aerospike.client.cdt.CTX;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.policy.*;
 import com.aerospike.client.query.IndexCollectionType;
@@ -294,6 +295,13 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 	}
 
 	@Override
+	public Mono<BatchResults> delete(BatchPolicy batchPolicy, BatchDeletePolicy deletePolicy,
+									 Key[] keys) throws AerospikeException {
+		return Mono.create(sink -> aerospikeClient.delete(
+				null, new ReactorBatchRecordArrayListener(sink), batchPolicy, deletePolicy, keys));
+	}
+
+	@Override
 	public final Mono<KeyRecord> operate(Key key, Operation... operations) throws AerospikeException {
 		return operate(null, key, operations);
 	}
@@ -302,6 +310,19 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 	public final Mono<KeyRecord> operate(WritePolicy policy, Key key, Operation... operations) throws AerospikeException {
 		return Mono.create(sink -> aerospikeClient.operate(
 				null, new ReactorRecordListener(sink), policy, key, operations));
+	}
+
+	@Override
+	public Mono<BatchResults> operate(BatchPolicy batchPolicy, BatchWritePolicy writePolicy, Key[] keys,
+									  Operation... ops) throws AerospikeException {
+		return Mono.create(sink -> aerospikeClient.operate(
+				null, new ReactorBatchRecordArrayListener(sink), batchPolicy, writePolicy, keys, ops));
+	}
+
+	@Override
+	public Mono<Boolean> operate(BatchPolicy policy, List<BatchRecord> records) throws AerospikeException {
+		return Mono.create(sink -> aerospikeClient.operate(
+				null, new ReactorBatchOperateListListener(sink), policy, records));
 	}
 
 	@Override
@@ -362,9 +383,9 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 	@Override
 	public Mono<Void> createIndex(Policy policy,
 								  String namespace, String setName, String indexName, String binName,
-								  IndexType indexType, IndexCollectionType indexCollectionType){
+								  IndexType indexType, IndexCollectionType indexCollectionType, CTX... ctx){
 		return waitTillComplete(
-				createIndexImpl(policy, namespace, setName, indexName, binName, indexType, indexCollectionType),
+				createIndexImpl(policy, namespace, setName, indexName, binName, indexType, indexCollectionType, ctx),
 				policy != null ? new InfoPolicy(policy) : aerospikeClient.getInfoPolicyDefault());
 	}
 
@@ -382,10 +403,10 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 
 	private Mono<AsyncIndexTask> createIndexImpl(Policy policy,
 											 String namespace, String setName, String indexName, String binName,
-											 IndexType indexType, IndexCollectionType indexCollectionType){
+											 IndexType indexType, IndexCollectionType indexCollectionType, CTX... ctx){
 		return  Mono.create(sink -> aerospikeClient.createIndex(null,
 				new ReactorIndexListener(sink), policy, namespace, setName, indexName, binName,
-				indexType, indexCollectionType));
+				indexType, indexCollectionType, ctx));
 	}
 
 	private Mono<AsyncIndexTask> dropIndexImpl(Policy policy,

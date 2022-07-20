@@ -17,6 +17,7 @@
 package com.aerospike.client.reactor.retry;
 
 import com.aerospike.client.*;
+import com.aerospike.client.cdt.CTX;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.policy.*;
 import com.aerospike.client.query.IndexCollectionType;
@@ -238,6 +239,12 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 	}
 
 	@Override
+	public Mono<BatchResults> delete(BatchPolicy batchPolicy, BatchDeletePolicy deletePolicy,
+									 Key[] keys) throws AerospikeException {
+		return client.delete(batchPolicy, deletePolicy, keys).retryWhen(retryPolicy);
+	}
+
+	@Override
 	public final Mono<KeyRecord> operate(Key key, Operation... operations) throws AerospikeException {
 		return operate(null, key, operations);
 	}
@@ -245,6 +252,17 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 	@Override
 	public final Mono<KeyRecord> operate(WritePolicy policy, Key key, Operation... operations) throws AerospikeException {
 		return client.operate(policy, key, operations).retryWhen(retryPolicy);
+	}
+
+	@Override
+	public Mono<BatchResults> operate(BatchPolicy batchPolicy, BatchWritePolicy writePolicy, Key[] keys,
+									  Operation... ops) throws AerospikeException {
+		return client.operate(batchPolicy, writePolicy, keys, ops).retryWhen(retryPolicy);
+	}
+
+	@Override
+	public Mono<Boolean> operate(BatchPolicy policy, List<BatchRecord> records) throws AerospikeException {
+		return client.operate(policy, records).retryWhen(retryPolicy);
 	}
 
 	@Override
@@ -291,8 +309,9 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 	@Override
 	public Mono<Void> createIndex(Policy policy,
 								  String namespace, String setName, String indexName, String binName,
-								  IndexType indexType, IndexCollectionType indexCollectionType){
-		return client.createIndex(policy, namespace, setName, indexName, binName, indexType, indexCollectionType).retryWhen(retryPolicy);
+								  IndexType indexType, IndexCollectionType indexCollectionType, CTX... ctx){
+		return client.createIndex(policy, namespace, setName, indexName, binName, indexType, indexCollectionType, ctx)
+				.retryWhen(retryPolicy);
 	}
 
 	@Override
