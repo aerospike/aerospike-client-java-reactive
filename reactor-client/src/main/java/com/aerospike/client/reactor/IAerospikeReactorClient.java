@@ -17,13 +17,9 @@
 package com.aerospike.client.reactor;
 
 import com.aerospike.client.*;
+import com.aerospike.client.cdt.CTX;
 import com.aerospike.client.cluster.Node;
-import com.aerospike.client.policy.BatchPolicy;
-import com.aerospike.client.policy.InfoPolicy;
-import com.aerospike.client.policy.Policy;
-import com.aerospike.client.policy.QueryPolicy;
-import com.aerospike.client.policy.ScanPolicy;
-import com.aerospike.client.policy.WritePolicy;
+import com.aerospike.client.policy.*;
 import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
 import com.aerospike.client.query.KeyRecord;
@@ -331,7 +327,6 @@ public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeabl
 	 */
 	Mono<Key> touch(Key key) throws AerospikeException;
 
-
 	/**
 	 * Reactively reset record's time to expiration using the policy's expiration.
 	 * This method registers the command with an event loop and returns.
@@ -535,6 +530,7 @@ public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeabl
 	 * @throws AerospikeException	if event loop registration fails
 	 */
 	Mono<Key> delete(Key key) throws AerospikeException;
+
 	/**
 	 * Reactively delete record for specified key.
 	 * This method registers the command with an event loop and returns.
@@ -547,6 +543,25 @@ public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeabl
 	 * @throws AerospikeException	if event loop registration fails
 	 */
 	Mono<Key> delete(WritePolicy policy, Key key) throws AerospikeException;
+
+    /**
+     * Asynchronously delete records for specified keys.
+     * This method registers the command with an event loop and returns.
+     * The event loop thread will process the command and send the results to the listener.
+     * <p>
+     * If a key is not found, the corresponding result {@link BatchRecord#resultCode} will be
+     * {@link ResultCode#KEY_NOT_FOUND_ERROR}.
+     * <p>
+     * Requires server version 6.0+
+     *
+     * @param batchPolicy  batch configuration parameters, pass in null for defaults
+     * @param deletePolicy delete configuration parameters, pass in null for defaults
+     * @param keys         array of unique record identifiers
+     * @throws AerospikeException if event loop registration fails
+     */
+	Mono<BatchResults> delete(BatchPolicy batchPolicy,
+							  BatchDeletePolicy deletePolicy,
+							  Key[] keys) throws AerospikeException;
 
 	/**
 	 * Reactively perform multiple read/write operations on a single key in one batch call.
@@ -566,7 +581,6 @@ public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeabl
 	 * @param operations			database operations to perform
 	 * @throws AerospikeException	if event loop registration fails
 	 */
-
 	Mono<KeyRecord> operate(Key key, Operation... operations) throws AerospikeException;
 
 	/**
@@ -589,6 +603,46 @@ public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeabl
 	 * @throws AerospikeException	if event loop registration fails
 	 */
 	Mono<KeyRecord> operate(WritePolicy policy, Key key, Operation... operations) throws AerospikeException;
+
+    /**
+     * Asynchronously perform read/write operations on multiple keys.
+     * This method registers the command with an event loop and returns.
+     * The event loop thread will process the command and send the results to the listener.
+     * <p>
+     * If a key is not found, the corresponding result {@link BatchRecord#resultCode} will be
+     * {@link ResultCode#KEY_NOT_FOUND_ERROR}.
+     * <p>
+     * Requires server version 6.0+
+     *
+     * @param batchPolicy batch configuration parameters, pass in null for defaults
+     * @param writePolicy write configuration parameters, pass in null for defaults
+     * @param keys        array of unique record identifiers
+     * @param ops         array of read/write operations on record
+     * @throws AerospikeException if event loop registration fails
+     */
+    Mono<BatchResults> operate(BatchPolicy batchPolicy,
+                               BatchWritePolicy writePolicy,
+                               Key[] keys,
+                               Operation... ops) throws AerospikeException;
+
+    /**
+     * Asynchronously read/write multiple records for specified batch keys in one batch call.
+     * This method registers the command with an event loop and returns.
+     * The event loop thread will process the command and send the results to the listener.
+     * <p>
+     * This method allows different namespaces/bins to be requested for each key in the batch.
+     * The returned records are located in the same list.
+     * <p>
+     * {@link BatchRecord} can be {@link BatchRead}, {@link BatchWrite}, {@link BatchDelete} or
+     * {@link BatchUDF}.
+     * <p>
+     * Requires server version 6.0+
+     *
+     * @param policy  batch configuration parameters, pass in null for defaults
+     * @param records list of unique record identifiers and read/write operations
+     * @throws AerospikeException if event loop registration fails
+     */
+    Mono<Boolean> operate(BatchPolicy policy, List<BatchRecord> records) throws AerospikeException;
 
 	/**
 	 * Reactively execute query on all server nodes.
@@ -719,11 +773,12 @@ public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeabl
 	 * @param binName				bin name that data is indexed on
 	 * @param indexType				underlying data type of secondary index
 	 * @param indexCollectionType	index collection type
+	 * @param ctx					optional context to index on elements within a CDT
 	 * @throws AerospikeException	if index create fails
 	 */
 	Mono<Void> createIndex(Policy policy,
 						   String namespace, String setName, String indexName, String binName,
-			               IndexType indexType, IndexCollectionType indexCollectionType);
+			               IndexType indexType, IndexCollectionType indexCollectionType, CTX... ctx);
 
 	/**
 	 * Reactively delete secondary index.

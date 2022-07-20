@@ -287,4 +287,46 @@ public class BatchReactorTest extends ReactorTest {
 				})
 				.verifyComplete();
 	}
+
+    @Test
+    public void batchDelete() {
+        Mono<BatchResults> mono = reactorClient.delete(null, null, sendKeys);
+
+        StepVerifier.create(mono)
+                .expectNextMatches(batchResults -> {
+                    assertThat(batchResults.status).isTrue();
+
+                    return true;
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void operateKeysOperations() {
+        Mono<BatchResults> mono = reactorClient.operate(null, null,
+                sendKeys, Operation.put(new Bin("intBin", 100)));
+
+        StepVerifier.create(mono)
+                .expectNextMatches(batchResults -> {
+                    assertThat(batchResults.status).isTrue();
+
+                    return true;
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void operateBatchRecords() {
+        List<BatchRecord> batchRecords = Arrays.stream(sendKeys)
+                .map(BatchDelete::new).collect(Collectors.toList());
+        Mono<Boolean> mono = reactorClient.operate(null, batchRecords);
+
+        StepVerifier.create(mono)
+                .expectNextMatches(result -> {
+                    assertThat(result).isTrue();
+
+                    return true;
+                })
+                .verifyComplete();
+    }
 }

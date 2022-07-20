@@ -58,13 +58,12 @@ abstract public class ReactorFailTest extends ReactorTest{
 		initProxiesForAllNodes(discoveryClient);
 
 		try {
-
 			Host[] hosts = proxies.stream()
 					.map(proxy -> new Host(proxy.getBindAddress().getHostName(), proxy.getBindAddress().getPort()))
 					.toArray(Host[]::new);
 
 			AerospikeClient proxyClient = new AerospikeClient(policy, hosts);
-			this.proxyReactorClient = new AerospikeReactorClient(proxyClient, eventLoops);
+			this.proxyReactorClient = new AerospikeReactorClient(proxyClient);
 
 		}
 		catch (Throwable e) {
