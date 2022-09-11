@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.aerospike</groupId>
         <artifactId>aerospike-client-java-reactive</artifactId>
-        <version>6.1.0</version>
+        <version>6.1.2</version>
     </parent>
     <artifactId>aerospike-reactor-client</artifactId>
     <packaging>jar</packaging>
@@ -19,12 +19,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <reactor.version>3.4.21</reactor.version>
+        <reactor.version>3.4.22</reactor.version>
         <assertj.version>3.23.1</assertj.version>
         <netcrusher.version>0.10</netcrusher.version>
 
         <skipTests>false</skipTests>
-        <mockito.version>3.12.4</mockito.version>
+        <mockito.version>4.8.0</mockito.version>
     </properties>
 
     <dependencies>
