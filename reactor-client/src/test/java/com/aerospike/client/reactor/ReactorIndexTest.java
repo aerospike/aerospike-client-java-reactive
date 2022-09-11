@@ -1,6 +1,5 @@
 package com.aerospike.client.reactor;
 
-import com.aerospike.client.AerospikeException;
 import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
 import com.aerospike.client.reactor.util.Args;
@@ -9,7 +8,7 @@ import org.junit.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-public class ReactorIndexTest extends ReactorTest{
+public class ReactorIndexTest extends ReactorTest {
 
     public ReactorIndexTest(Args args) {
         super(args);
@@ -19,9 +18,8 @@ public class ReactorIndexTest extends ReactorTest{
     private static final String binName = "rintbin";
 
     @Before
-    public void before(){
-
-        Mono<Void> dropped = reactorClient.dropIndex(null,args.namespace, args.set, indexName)
+    public void before() {
+        Mono<Void> dropped = reactorClient.dropIndex(null, args.namespace, args.set, indexName)
                 .onErrorResume(throwable -> true, throwable -> Mono.empty());
 
         StepVerifier.create(dropped)
@@ -30,7 +28,6 @@ public class ReactorIndexTest extends ReactorTest{
 
     @Test
     public void shouldCreateAndDropIndex() {
-
         Mono<Void> created = reactorClient.createIndex(null, args.namespace, args.set, indexName,
                 args.getBinName(binName), IndexType.NUMERIC, IndexCollectionType.DEFAULT);
 
@@ -42,9 +39,12 @@ public class ReactorIndexTest extends ReactorTest{
                 .verifyComplete();
     }
 
+    /**
+     * Starting at Aerospike server version 6.1.0.1:
+     * Attempting to create a secondary index which already exists now returns success/OK instead of an error.
+     */
     @Test
-    public void shouldFailCreateIndexIfAlreadyExists() {
-
+    public void shouldNotFailCreateIndexIfAlreadyExists() {
         Mono<Void> created = reactorClient.createIndex(null, args.namespace, args.set, indexName,
                 args.getBinName(binName), IndexType.NUMERIC, IndexCollectionType.DEFAULT);
 
@@ -55,22 +55,16 @@ public class ReactorIndexTest extends ReactorTest{
                 args.getBinName(binName), IndexType.NUMERIC, IndexCollectionType.DEFAULT);
 
         StepVerifier.create(created)
-                .expectErrorMatches(throwable -> throwable instanceof AerospikeException
-                        && throwable.getMessage().contains("Create index failed"))
-                .verify();
+                .verifyComplete();
 
         reactorClient.dropIndex(null, args.namespace, args.set, indexName).subscribe();
     }
 
     @Test
-    public void shouldFailDropIndexIfNotExists() {
-
+    public void shouldNotFailDropIndexIfNotExists() {
         Mono<Void> created = reactorClient.dropIndex(null, args.namespace, args.set, indexName);
 
         StepVerifier.create(created)
-                .expectErrorMatches(throwable -> throwable instanceof AerospikeException
-                        && throwable.getMessage().contains("Drop index failed"))
-                .verify();
+                .verifyComplete();
     }
-
 }
