@@ -29,7 +29,7 @@
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
 
-        <aerospike-client.version>6.1.2</aerospike-client.version>
+        <aerospike-client.version>7.0.0</aerospike-client.version>
         <netty.version>4.1.81.Final</netty.version>
         <commons-cli.version>1.5.0</commons-cli.version>
         <junit.version>4.13.2</junit.version>
