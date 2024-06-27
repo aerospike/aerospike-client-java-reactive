@@ -9,6 +9,7 @@ import com.aerospike.client.ResultCode;
 import com.aerospike.client.cdt.ListOperation;
 import com.aerospike.client.cdt.ListReturnType;
 import com.aerospike.client.policy.BatchPolicy;
+import com.aerospike.client.policy.Policy;
 import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
 import com.aerospike.client.query.Statement;
@@ -44,11 +45,11 @@ public class RetryTest {
     public static final Operation[] OPS = new Operation[]{ListOperation.size(LIST_BIN), ListOperation.getByIndex(LIST_BIN, -1, ListReturnType.VALUE)};
 
     public static final AerospikeException.Connection NO_CONNECTION = new AerospikeException.Connection(ResultCode.NO_MORE_CONNECTIONS, "1");
-    public static final AerospikeException.Timeout TIMEOUT = new AerospikeException.Timeout(1, false);
+    public static final AerospikeException.Timeout TIMEOUT = new AerospikeException.Timeout(new Policy(), false);
 
-    private IAerospikeReactorClient reactorClient = mock(IAerospikeReactorClient.class);
+    private final IAerospikeReactorClient reactorClient = mock(IAerospikeReactorClient.class);
 
-    private IAerospikeReactorClient retryClient = new AerospikeReactorRetryClient(reactorClient,
+    private final IAerospikeReactorClient retryClient = new AerospikeReactorRetryClient(reactorClient,
             retryOnNoMoreConnections());
 
     @Test
