@@ -418,6 +418,7 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 	private Mono<Void> waitTillComplete(Mono<AsyncIndexTask> asyncIndexTaskMono, InfoPolicy infoPolicy){
 		 return asyncIndexTaskMono.flatMapMany(indexTask ->
 				Flux.fromArray(aerospikeClient.getNodes())
+						.filter(Node::isActive)
 						.flatMap(node -> queryIndexStatus(infoPolicy, indexTask, node)
 								.delayElement(Duration.ofMillis(1000))
 								.repeat()
