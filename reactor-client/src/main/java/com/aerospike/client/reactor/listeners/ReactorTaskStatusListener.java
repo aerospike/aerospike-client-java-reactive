@@ -21,5 +21,4 @@ public class ReactorTaskStatusListener implements TaskStatusListener {
     public void onFailure(AerospikeException ae) {
         sink.error(ae);
     }
-
 }

@@ -645,6 +645,34 @@ public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeabl
     Mono<Boolean> operate(BatchPolicy policy, List<BatchRecord> records) throws AerospikeException;
 
 	/**
+	 * Asynchronously attempt to commit the given multi-record transaction. First, the expected
+	 * record versions are sent to the server nodes for verification. If all nodes return success,
+	 * the transaction is committed. Otherwise, the transaction is aborted.
+	 * <p>
+	 * This method registers the command with an event loop and returns.
+	 * The event loop thread will process the command and send the results to the listener.
+	 * <p>
+	 * Requires server version 8.0+
+	 *
+	 * @param txn multi-record transaction
+	 * @throws AerospikeException if event loop registration fails
+	 */
+	Mono<CommitStatus> commit(Txn txn) throws AerospikeException;
+
+	/**
+	 * Asynchronously abort and rollback the given multi-record transaction.
+	 * <p>
+	 * This method registers the command with an event loop and returns.
+	 * The event loop thread will process the command and send the results to the listener.
+	 * <p>
+	 * Requires server version 8.0+
+	 *
+	 * @param txn multi-record transaction
+	 * @throws AerospikeException if event loop registration fails
+	 */
+	Mono<AbortStatus> abort(Txn txn) throws AerospikeException;
+
+	/**
 	 * Reactively execute query on all server nodes.
 	 * This method registers the command with an event loop and returns.
 	 * The event loop thread will process the command and send the results to the flux.
