@@ -37,6 +37,7 @@ public class ReactorExistsListener implements ExistsListener {
 			sink.success();
 		}
 	}
+
 	@Override
 	public void onFailure(AerospikeException exception) {
 		sink.error(exception);

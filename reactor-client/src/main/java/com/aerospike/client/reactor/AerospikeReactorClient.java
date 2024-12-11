@@ -326,6 +326,18 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 	}
 
 	@Override
+	public Mono<CommitStatus> commit(Txn txn) throws AerospikeException {
+		return Mono.create(sink -> aerospikeClient.commit(
+				null, new ReactorCommitListener(sink), txn));
+	}
+
+	@Override
+	public Mono<AbortStatus> abort(Txn txn) throws AerospikeException {
+		return Mono.create(sink -> aerospikeClient.abort(
+				null, new ReactorAbortListener(sink), txn));
+	}
+
+	@Override
 	public final Flux<KeyRecord> query(Statement statement) throws AerospikeException {
 		return query(null, statement);
 	}
@@ -404,7 +416,7 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 	private Mono<AsyncIndexTask> createIndexImpl(Policy policy,
 											 String namespace, String setName, String indexName, String binName,
 											 IndexType indexType, IndexCollectionType indexCollectionType, CTX... ctx){
-		return  Mono.create(sink -> aerospikeClient.createIndex(null,
+		return Mono.create(sink -> aerospikeClient.createIndex(null,
 				new ReactorIndexListener(sink), policy, namespace, setName, indexName, binName,
 				indexType, indexCollectionType, ctx));
 	}
@@ -459,5 +471,15 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 	@Override
 	public InfoPolicy getInfoPolicyDefault() {
 		return aerospikeClient.getInfoPolicyDefault();
+	}
+
+	@Override
+	public TxnVerifyPolicy getTxnVerifyPolicyDefault() {
+		return aerospikeClient.getTxnVerifyPolicyDefault();
+	}
+
+	@Override
+	public TxnRollPolicy getTxnRollPolicyDefault() {
+		return aerospikeClient.getTxnRollPolicyDefault();
 	}
 }

@@ -266,6 +266,16 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 	}
 
 	@Override
+	public Mono<CommitStatus> commit(Txn txn) throws AerospikeException {
+		return client.commit(txn).retryWhen(retryPolicy);
+	}
+
+	@Override
+	public Mono<AbortStatus> abort(Txn txn) throws AerospikeException {
+		return client.abort(txn).retryWhen(retryPolicy);
+	}
+
+	@Override
 	public final Flux<KeyRecord> query(Statement statement) throws AerospikeException {
 		return query(null, statement);
 	}
@@ -352,5 +362,15 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 	@Override
 	public InfoPolicy getInfoPolicyDefault() {
 		return client.getInfoPolicyDefault();
+	}
+
+	@Override
+	public TxnVerifyPolicy getTxnVerifyPolicyDefault() {
+		return client.getTxnVerifyPolicyDefault();
+	}
+
+	@Override
+	public TxnRollPolicy getTxnRollPolicyDefault() {
+		return client.getTxnRollPolicyDefault();
 	}
 }

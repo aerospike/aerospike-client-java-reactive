@@ -33,10 +33,12 @@ public class ReactorBatchSequenceListener implements BatchSequenceListener {
 	public void onRecord(BatchRead record) {
 		sink.next(record);
 	}
+
 	@Override
 	public void onSuccess() {
 		sink.complete();
 	}
+
 	@Override
 	public void onFailure(AerospikeException exception) {
 		sink.error(exception);

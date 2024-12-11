@@ -22,5 +22,4 @@ public class ReactorIndexListener implements IndexListener {
     public void onFailure(AerospikeException ae) {
         sink.error(ae);
     }
-
 }

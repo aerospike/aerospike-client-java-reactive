@@ -15,4 +15,8 @@ public interface DefaultPolicyProvider {
     BatchPolicy getBatchPolicyDefault();
 
     InfoPolicy getInfoPolicyDefault();
+
+    TxnVerifyPolicy getTxnVerifyPolicyDefault();
+
+    TxnRollPolicy getTxnRollPolicyDefault();
 }

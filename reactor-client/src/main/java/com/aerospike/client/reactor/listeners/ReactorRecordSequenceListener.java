@@ -35,13 +35,14 @@ public class ReactorRecordSequenceListener implements RecordSequenceListener {
 	public void onRecord(Key key, Record record) throws AerospikeException {
 		sink.next(new KeyRecord(key, record));
 	}
+
 	@Override
 	public void onSuccess() {
 		sink.complete();
 	}
+
 	@Override
 	public void onFailure(AerospikeException exception) {
 		sink.error(exception);
 	}
-
 }

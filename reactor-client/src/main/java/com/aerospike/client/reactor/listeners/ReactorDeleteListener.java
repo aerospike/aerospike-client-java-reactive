@@ -37,6 +37,7 @@ public class ReactorDeleteListener implements DeleteListener {
 			sink.success();
 		}
 	}
+
 	@Override
 	public void onFailure(AerospikeException exception) {
 		sink.error(exception);

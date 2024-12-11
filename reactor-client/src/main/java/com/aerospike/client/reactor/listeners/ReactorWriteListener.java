@@ -33,9 +33,9 @@ public class ReactorWriteListener implements WriteListener {
 	public void onSuccess(Key key) {
 		sink.success(key);
 	}
+
 	@Override
 	public void onFailure(AerospikeException exception) {
 		sink.error(exception);
 	}
-
 }

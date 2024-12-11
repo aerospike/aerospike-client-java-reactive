@@ -34,10 +34,12 @@ public class ReactorExistsSequenceListener implements ExistsSequenceListener {
 	public void onExists(Key key, boolean exists) {
 		sink.next(new KeyExists(key, exists));
 	}
+
 	@Override
 	public void onSuccess() {
 		sink.complete();
 	}
+
 	@Override
 	public void onFailure(AerospikeException exception) {
 		sink.error(exception);

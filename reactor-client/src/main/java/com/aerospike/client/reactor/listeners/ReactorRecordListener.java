@@ -34,6 +34,7 @@ public class ReactorRecordListener implements com.aerospike.client.listener.Reco
 	public void onSuccess(Key key, Record record) {
 		sink.success(new KeyRecord(key, record));
 	}
+
 	@Override
 	public void onFailure(AerospikeException exception) {
 		sink.error(exception);
