@@ -18,7 +18,6 @@ package com.aerospike.client.reactor;
 
 import com.aerospike.client.*;
 import com.aerospike.client.async.AsyncIndexTask;
-import com.aerospike.client.async.EventLoops;
 import com.aerospike.client.cdt.CTX;
 import com.aerospike.client.cluster.Node;
 import com.aerospike.client.policy.*;
@@ -67,21 +66,9 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 	private final IAerospikeClient aerospikeClient;
 
 	/**
-	 * @param aerospikeClient		the {@link com.aerospike.client.AerospikeClient} instance
+	 * @param aerospikeClient the {@link com.aerospike.client.AerospikeClient} instance
 	 */
 	public AerospikeReactorClient(IAerospikeClient aerospikeClient) {
-		this.aerospikeClient = aerospikeClient;
-	}
-
-	/**
-	 * @param aerospikeClient		the {@link com.aerospike.client.AerospikeClient} instance
-	 * @param eventLoops			the asynchronous event loops
-	 *
-	 * @deprecated use the {@link #AerospikeReactorClient(IAerospikeClient)} constructor instead.
-	 */
-	@Deprecated
-	@SuppressWarnings("unused")
-	public AerospikeReactorClient(IAerospikeClient aerospikeClient, EventLoops eventLoops) {
 		this.aerospikeClient = aerospikeClient;
 	}
 
@@ -413,6 +400,7 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 		return aerospikeClient;
 	}
 
+	@SuppressWarnings("java:S107")
 	private Mono<AsyncIndexTask> createIndexImpl(Policy policy,
 											 String namespace, String setName, String indexName, String binName,
 											 IndexType indexType, IndexCollectionType indexCollectionType, CTX... ctx){
