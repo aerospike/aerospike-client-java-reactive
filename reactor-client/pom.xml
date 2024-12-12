@@ -19,7 +19,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <reactor.version>3.6.7</reactor.version>
+        <reactor.version>3.7.1</reactor.version>
         <assertj.version>3.24.2</assertj.version>
         <netcrusher.version>0.10</netcrusher.version>
 
