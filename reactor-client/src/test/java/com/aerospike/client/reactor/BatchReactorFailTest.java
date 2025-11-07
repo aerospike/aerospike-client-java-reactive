@@ -57,7 +57,6 @@ public class BatchReactorFailTest extends ReactorFailTest {
 		sendKeys = new Key[SIZE];
 
 		WritePolicy policy = new WritePolicy();
-		policy.expiration = 2592000;
 
 		Mono.zip(
 				IntStream.range(0, SIZE)
