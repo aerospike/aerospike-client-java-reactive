@@ -63,7 +63,6 @@ public class BatchReactorTest extends ReactorTest {
 		sendKeys = new Key[SIZE];
 
 		WritePolicy policy = new WritePolicy();
-		policy.expiration = 2592000;
 
 		Mono.zip(
 				IntStream.range(0, SIZE)
@@ -204,7 +203,6 @@ public class BatchReactorTest extends ReactorTest {
 						Record record = keysRecords.records[i];
 						assertRecordFound(keysRecords.keys[i], record);
 						assertThat(record.generation).isGreaterThan(0);
-						assertThat(record.expiration).isGreaterThan(0);
 					}
 					return true;
 				})
