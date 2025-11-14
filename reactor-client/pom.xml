@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.aerospike</groupId>
             <artifactId>aerospike-client-jdk21</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
