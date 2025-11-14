@@ -30,7 +30,8 @@
     <dependencies>
         <dependency>
             <groupId>com.aerospike</groupId>
-            <artifactId>aerospike-client-jdk8</artifactId>
+            <artifactId>aerospike-client-jdk21</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -118,7 +119,7 @@
                     <splitindex>true</splitindex>
                     <bottom>Copyright &#169; 2012-{currentYear} Aerospike, Inc. All rights reserved.</bottom>
                     <sourcepath>${project.basedir}/src/main/java</sourcepath>
-                    <source>8</source>
+                    <source>${java.version}</source>
                 </configuration>
                 <executions>
                     <execution>
