@@ -1,0 +1,27 @@
+name: extract-jdk-version
+description: extract-jdk-version from pom.xml
+
+inputs:
+  version-file:
+    default: pom.xml
+    description: "Path to VERSION file (default: 'pom.xml')"
+    required: false
+outputs:
+  version:
+    description: Extracted jdk version
+    value: ${{ steps.extract.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Extract JDK Version
+      id: extract
+      shell: bash
+      run: |
+        if [[ "${{ inputs.version-file }}" == *"pom.xml" ]]; then
+          VERSION=$(grep -m 1 "<java.version>" "${{ inputs.version-file }}" | sed 's/.*<version>\(.*\)<\/version>.*/\1/' | tr -d '\n\r' | xargs)
+        else
+            # Use VERSION file
+          VERSION=$(cat "${{ inputs.version-file }}" | tr -d '\n\r' | xargs)
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
