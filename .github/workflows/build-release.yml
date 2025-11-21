@@ -71,7 +71,7 @@ jobs:
       gh-artifact-name: build-artifacts-${{ needs.extract-version.outputs.version }}
       gh-retention-days: 1 # default
       jf-url: https://artifact.aerospike.io # default
-      publish-build-info: true
+      publish-build-info: false
       oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
       oidc-audience: ${{ vars.OIDC_AUDIENCE }}
 
