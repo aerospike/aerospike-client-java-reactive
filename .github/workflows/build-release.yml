@@ -17,7 +17,7 @@ on:
         required: true
   push:
     branches:
-      - CLIENT-3872-add-java-reactor-client-to-jf
+      - CLIENT-3872-add-release-scripts
 
 jobs:
   extract-version:
