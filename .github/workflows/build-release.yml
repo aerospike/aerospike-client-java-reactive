@@ -51,7 +51,7 @@ jobs:
         sleep 5
 
         # Maven build
-        mvn clean test -B -U
+        mvn clean install -B -U
 
         cd reactor-client
 
