@@ -30,53 +30,61 @@ jobs:
     outputs:
       version: ${{ steps.extract.outputs.release-version }}
 
-  build-packages:
-    uses: aerospike/shared-workflows/.github/workflows/reusable_execute-build.yaml@e9d98e77b7895f22a3a45393f8461d44901df7be
+  setup-and-build:
+    runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
     needs: extract-version
-    with:
-      runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
-      jf-project: ${{ vars.JFROG_PROJECT }}
-      jf-build-name: aerospike-client-java-reactive
-      jf-build-id: ${{ github.run_number }}-buildinfo-${{ needs.extract-version.outputs.version }}
-      gh-checkout-path: shared-workflows
-      gh-source-path: aerospike-client-java-reactive
-      working-directory: aerospike-client-java-reactive
-      setup-java: true
-      java-version: 8
-      java-distribution: "temurin"
-      build-script: |
-        mvn clean test -B -U
+    steps:
+      - uses: actions/checkout@v5
 
-        cd client
+      - name: Set up Aerospike Database
+        uses: reugn/github-action-aerospike@v1
 
-        LOCAL_REPO=$(mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)
-        GROUP_ID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)
-        ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
-        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+      - name: Run reusable build workflow
+        uses: aerospike/shared-workflows/.github/workflows/reusable_execute-build.yaml@e9d98e77b7895f22a3a45393f8461d44901df7be
+        with:
+          runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
+          jf-project: ${{ vars.JFROG_PROJECT }}
+          jf-build-name: aerospike-client-java-reactive
+          jf-build-id: ${{ github.run_number }}-buildinfo-${{ needs.extract-version.outputs.version }}
+          gh-checkout-path: shared-workflows
+          gh-source-path: aerospike-client-java-reactive
+          working-directory: aerospike-client-java-reactive
+          setup-java: true
+          java-version: 8
+          java-distribution: "temurin"
+          build-script: |
+            mvn clean test -B -U
+    
+            cd client
+    
+            LOCAL_REPO=$(mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)
+            GROUP_ID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)
+            ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+            VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+    
+            GROUP_PATH=$(echo "$GROUP_ID" | tr '.' '/')
+            ARTIFACT_PATH="$LOCAL_REPO/$GROUP_PATH/$ARTIFACT_ID/$VERSION"
+    
+            cd -
+    
+            echo "Copying artifacts to ./build/"
+            for file in "$ARTIFACT_PATH"/*; do
+              if [[ "$file" == *"-jar-with-dependencies.jar" ]] || [[ "$file" == *"_remote.repositories" ]]; then
+                continue
+              fi
+              cp "$file" build/
+            done
 
-        GROUP_PATH=$(echo "$GROUP_ID" | tr '.' '/')
-        ARTIFACT_PATH="$LOCAL_REPO/$GROUP_PATH/$ARTIFACT_ID/$VERSION"
-
-        cd -
-
-        echo "Copying artifacts to ./build/"
-        for file in "$ARTIFACT_PATH"/*; do
-          if [[ "$file" == *"-jar-with-dependencies.jar" ]] || [[ "$file" == *"_remote.repositories" ]]; then
-            continue
-          fi
-          cp "$file" build/
-        done
-
-      gh-artifact-directory: build
-      gh-artifact-name: build-artifacts-${{ needs.extract-version.outputs.version }}
-      gh-retention-days: 1 # default
-      jf-url: https://artifact.aerospike.io # default
-      publish-build-info: false
-      oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
-      oidc-audience: ${{ vars.OIDC_AUDIENCE }}
+          gh-artifact-directory: build
+          gh-artifact-name: build-artifacts-${{ needs.extract-version.outputs.version }}
+          gh-retention-days: 1 # default
+          jf-url: https://artifact.aerospike.io # default
+          publish-build-info: false
+          oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
+          oidc-audience: ${{ vars.OIDC_AUDIENCE }}
 
   sign-artifacts:
-    needs: [build-packages, extract-version]
+    needs: [setup-and-build, extract-version]
     uses: aerospike/shared-workflows/.github/workflows/reusable_sign-artifacts.yaml@37581d0437fe0b76315dafc402882c875789b1af
     with:
       gh-retention-days: 1
