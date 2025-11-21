@@ -51,7 +51,7 @@ jobs:
         sleep 5
 
         # Maven build
-        mvn clean install -B -U
+        mvn clean install -B -U -Dgpg.skip=true
 
         cd reactor-client
 
