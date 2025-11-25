@@ -15,9 +15,6 @@ on:
         required: true
       GPG_PASS:
         required: true
-  push:
-    branches:
-      - CLIENT-3872-add-release-scripts
 
 jobs:
   extract-version:
@@ -106,7 +103,7 @@ jobs:
       gh-retention-days: 1
       oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
       oidc-audience: ${{ vars.OIDC_AUDIENCE }}
-      dry-run: true
+      dry-run: false
 
   create-release-bundle:
     needs: [extract-version, deploy-artifacts]
@@ -118,4 +115,4 @@ jobs:
       version: ${{ needs.extract-version.outputs.version }}
       oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
       oidc-audience: ${{ vars.OIDC_AUDIENCE }}
-      dry-run: true
+      dry-run: false
