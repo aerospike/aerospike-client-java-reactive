@@ -103,7 +103,7 @@ jobs:
       gh-retention-days: 1
       oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
       oidc-audience: ${{ vars.OIDC_AUDIENCE }}
-      dry-run: false
+      dry-run: true
 
   create-release-bundle:
     needs: [extract-version, deploy-artifacts]
@@ -115,4 +115,4 @@ jobs:
       version: ${{ needs.extract-version.outputs.version }}
       oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
       oidc-audience: ${{ vars.OIDC_AUDIENCE }}
-      dry-run: false
+      dry-run: true
