@@ -29,7 +29,7 @@ jobs:
 
   build-packages:
     needs: extract-version
-    uses: aerospike/shared-workflows/.github/workflows/reusable_execute-build.yaml@31af2be6af76bc6e7fce82d453e91f3b99a2a22a
+    uses: aerospike/shared-workflows/.github/workflows/reusable_execute-build.yaml@3c2b59c27671c9b734574b4ece90b12786d78b29
     with:
       runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
       jf-project: ${{ vars.JFROG_PROJECT }}
@@ -79,7 +79,7 @@ jobs:
 
   sign-artifacts:
     needs: [build-packages, extract-version]
-    uses: aerospike/shared-workflows/.github/workflows/reusable_sign-artifacts.yaml@31af2be6af76bc6e7fce82d453e91f3b99a2a22a
+    uses: aerospike/shared-workflows/.github/workflows/reusable_sign-artifacts.yaml@3c2b59c27671c9b734574b4ece90b12786d78b29
     with:
       gh-retention-days: 1
       gh-artifact-name: signed_build-artifacts-${{ needs.extract-version.outputs.version }}
@@ -91,9 +91,9 @@ jobs:
 
   deploy-artifacts:
     needs: [sign-artifacts, extract-version]
-    uses: aerospike/shared-workflows/.github/workflows/reusable_deploy-artifacts.yaml@31af2be6af76bc6e7fce82d453e91f3b99a2a22a
+    uses: aerospike/shared-workflows/.github/workflows/reusable_deploy-artifacts.yaml@3c2b59c27671c9b734574b4ece90b12786d78b29
     with:
-      gh-workflows-ref: 31af2be6af76bc6e7fce82d453e91f3b99a2a22a
+      gh-workflows-ref: 3c2b59c27671c9b734574b4ece90b12786d78b29
       jf-project: ${{ vars.JFROG_PROJECT }}
       jf-build-name: aerospike-client-java-reactive
       jf-metadata-build-id: ${{ github.run_number }}-buildinfo
@@ -108,7 +108,7 @@ jobs:
 
   create-release-bundle:
     needs: [extract-version, deploy-artifacts]
-    uses: aerospike/shared-workflows/.github/workflows/reusable_create-release-bundle.yaml@31af2be6af76bc6e7fce82d453e91f3b99a2a22a
+    uses: aerospike/shared-workflows/.github/workflows/reusable_create-release-bundle.yaml@3c2b59c27671c9b734574b4ece90b12786d78b29
     with:
       jf-project: ${{ vars.JFROG_PROJECT }}
       jf-build-names: aerospike-client-java-reactive:${{ github.run_number }}
