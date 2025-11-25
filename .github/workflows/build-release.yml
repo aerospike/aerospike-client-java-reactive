@@ -100,7 +100,6 @@ jobs:
       jf-build-id: ${{ github.run_number }}
       gh-artifact-name: ${{ needs.sign-artifacts.outputs.gh-artifact-name }}
       version: ${{ needs.extract-version.outputs.version }}
-      jar-group-id: "com.aerospike"
       gh-retention-days: 1
       oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
       oidc-audience: ${{ vars.OIDC_AUDIENCE }}
