@@ -10,5 +10,5 @@ on:
 jobs:
   build-stage:
     name: Build stage
-    uses: ./.github/workflows/build-release.yaml
+    uses: ./.github/workflows/build-release.yml
     secrets: inherit
