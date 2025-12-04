@@ -813,15 +813,16 @@ public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeabl
     /**
      * Reactively create expression based secondary index to be used on bins containing collections.
      * Available for server version 8.1+
-     *<p>
-     *     <a href>https://aerospike.com/docs/database/learn/architecture/data-storage/secondary-index/#expression-indexes</a>
-     *</p>
+     * <p>
+     * <a href="https://aerospike.com/docs/database/learn/architecture/data-storage/secondary-index/#expression-indexes">https://aerospike.com/docs/database/learn/architecture/data-storage/secondary-index/#expression-indexes</a>
+     * </p>
      * @param policy				generic configuration parameters, pass in null for defaults
      * @param namespace				namespace - equivalent to database name
      * @param setName				optional set name - equivalent to database table
      * @param indexName				name of secondary index
      * @param indexType				underlying data type of secondary index
      * @param indexCollectionType	index collection type
+     * @param expression			expression to be used for the index
      * @throws AerospikeException	if index create fails
      */
 	Mono<Void> createIndex(Policy policy,
