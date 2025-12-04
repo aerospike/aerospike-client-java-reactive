@@ -6,8 +6,10 @@ import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
 import com.aerospike.client.Operation;
 import com.aerospike.client.ResultCode;
+import com.aerospike.client.cdt.CTX;
 import com.aerospike.client.cdt.ListOperation;
 import com.aerospike.client.cdt.ListReturnType;
+import com.aerospike.client.exp.Expression;
 import com.aerospike.client.policy.BatchPolicy;
 import com.aerospike.client.policy.Policy;
 import com.aerospike.client.query.IndexCollectionType;
@@ -25,6 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.aerospike.client.reactor.retry.RetryFactories.retryOnNoMoreConnections;
 import static java.util.Arrays.asList;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -55,7 +59,7 @@ public class RetryTest {
     @Test
     public void shouldRetryGet(){
 
-        when(reactorClient.get(ArgumentMatchers.any(), ArgumentMatchers.<Key>any()))
+        when(reactorClient.get(any(), any(Key.class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.get(KEY))
@@ -65,7 +69,7 @@ public class RetryTest {
     @Test
     public void shouldRetryGetWithBinNames(){
 
-        when(reactorClient.get(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.<String[]>any()))
+        when(reactorClient.get(any(), any(), any(String[].class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.get(null, KEY, BIN_NAMES))
@@ -75,7 +79,7 @@ public class RetryTest {
     @Test
     public void shouldRetryBatchGet(){
 
-        when(reactorClient.get(ArgumentMatchers.any(), ArgumentMatchers.<Key[]>any()))
+        when(reactorClient.get(any(), any(Key[].class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.get(KEYS))
@@ -85,7 +89,7 @@ public class RetryTest {
     @Test
     public void shouldRetryBatch(){
 
-        when(reactorClient.get(ArgumentMatchers.any(), ArgumentMatchers.<List<BatchRead>>any()))
+        when(reactorClient.get(any(), ArgumentMatchers.<List<BatchRead>>any()))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.get(BATCH))
@@ -95,7 +99,7 @@ public class RetryTest {
     @Test
     public void shouldRetryBatchOperations(){
 
-        when(reactorClient.get(ArgumentMatchers.<BatchPolicy>any(), ArgumentMatchers.any(), ArgumentMatchers.<Operation>any()))
+        when(reactorClient.get(ArgumentMatchers.<BatchPolicy>any(), any(), ArgumentMatchers.<Operation>any()))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.get(KEYS, OPS))
@@ -105,7 +109,7 @@ public class RetryTest {
     @Test
     public void shouldRetryGetFlux(){
 
-        when(reactorClient.getFlux(ArgumentMatchers.any(), ArgumentMatchers.<Key[]>any()))
+        when(reactorClient.getFlux(any(), any(Key[].class)))
                 .thenReturn(mockFluxErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.getFlux(KEYS))
@@ -115,7 +119,7 @@ public class RetryTest {
     @Test
     public void shouldRetryBatchFlux(){
 
-        when(reactorClient.getFlux(ArgumentMatchers.any(), ArgumentMatchers.<List<BatchRead>>any()))
+        when(reactorClient.getFlux(any(), ArgumentMatchers.<List<BatchRead>>any()))
                 .thenReturn(mockFluxErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.getFlux(BATCH))
@@ -125,7 +129,7 @@ public class RetryTest {
     @Test
     public void shouldRetryBatchFluxOperations(){
 
-        when(reactorClient.getFlux(ArgumentMatchers.<BatchPolicy>any(), ArgumentMatchers.any(), ArgumentMatchers.<Operation>any()))
+        when(reactorClient.getFlux(ArgumentMatchers.<BatchPolicy>any(), any(), ArgumentMatchers.<Operation>any()))
                 .thenReturn(mockFluxErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.getFlux(KEYS, OPS))
@@ -135,7 +139,7 @@ public class RetryTest {
     @Test
     public void shouldRetryGetHeader(){
 
-        when(reactorClient.getHeader(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(reactorClient.getHeader(any(), any()))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.getHeader(KEY))
@@ -145,7 +149,7 @@ public class RetryTest {
     @Test
     public void shouldRetryGetHeaders(){
 
-        when(reactorClient.getHeaders(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(reactorClient.getHeaders(any(), any()))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.getHeaders(KEYS))
@@ -155,7 +159,7 @@ public class RetryTest {
     @Test
     public void shouldRetryTouch(){
 
-        when(reactorClient.touch(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(reactorClient.touch(any(), any()))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.touch(KEY))
@@ -165,7 +169,7 @@ public class RetryTest {
     @Test
     public void shouldRetryExists(){
 
-        when(reactorClient.exists(ArgumentMatchers.any(), ArgumentMatchers.<Key>any()))
+        when(reactorClient.exists(any(), any(Key.class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.exists(KEY))
@@ -175,7 +179,7 @@ public class RetryTest {
     @Test
     public void shouldRetryBatchExists(){
 
-        when(reactorClient.exists(ArgumentMatchers.any(), ArgumentMatchers.<Key[]>any()))
+        when(reactorClient.exists(any(), any(Key[].class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.exists(KEYS))
@@ -185,7 +189,7 @@ public class RetryTest {
     @Test
     public void shouldRetryExistsFlux(){
 
-        when(reactorClient.existsFlux(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(reactorClient.existsFlux(any(), any()))
                 .thenReturn(mockFluxErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.existsFlux(KEYS))
@@ -195,7 +199,7 @@ public class RetryTest {
     @Test
     public void shouldRetryPut(){
 
-        when(reactorClient.put(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.<Bin[]>any()))
+        when(reactorClient.put(any(), any(), any(Bin[].class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.put(KEY, BIN, BIN2))
@@ -205,7 +209,7 @@ public class RetryTest {
     @Test
     public void shouldRetryAppend(){
 
-        when(reactorClient.append(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.<Bin[]>any()))
+        when(reactorClient.append(any(), any(), any(Bin[].class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.append(KEY, BIN, BIN2))
@@ -215,7 +219,7 @@ public class RetryTest {
     @Test
     public void shouldRetryPrepend(){
 
-        when(reactorClient.prepend(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.<Bin[]>any()))
+        when(reactorClient.prepend(any(), any(), any(Bin[].class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.prepend(KEY, BIN, BIN2))
@@ -225,7 +229,7 @@ public class RetryTest {
     @Test
     public void shouldRetryAdd(){
 
-        when(reactorClient.add(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.<Bin[]>any()))
+        when(reactorClient.add(any(), any(), any(Bin[].class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.add(KEY, BIN, BIN2))
@@ -235,7 +239,7 @@ public class RetryTest {
     @Test
     public void shouldRetryDelete(){
 
-        when(reactorClient.delete(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(reactorClient.delete(any(), any()))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.delete(KEY))
@@ -245,7 +249,7 @@ public class RetryTest {
     @Test
     public void shouldRetryOperate(){
 
-        when(reactorClient.operate(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.<Operation[]>any()))
+        when(reactorClient.operate(any(), any(), any(Operation[].class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.operate(KEY, Operation.touch(), Operation.delete()))
@@ -255,7 +259,7 @@ public class RetryTest {
     @Test
     public void shouldRetryQuery(){
 
-        when(reactorClient.query(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(reactorClient.query(any(), any()))
                 .thenReturn(mockFluxErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.query(new Statement()))
@@ -265,7 +269,7 @@ public class RetryTest {
     @Test
     public void shouldRetryScanAll(){
 
-        when(reactorClient.scanAll(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(reactorClient.scanAll(any(), any(), any(), any()))
                 .thenReturn(mockFluxErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.scanAll("namespace", "setname", BIN_NAMES))
@@ -275,8 +279,7 @@ public class RetryTest {
     @Test
     public void shouldRetryExecute(){
 
-        when(reactorClient.execute(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                ArgumentMatchers.any(),  ArgumentMatchers.any()))
+        when(reactorClient.execute(any(), any(), any(), any(),  any()))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.execute(KEY, "packageName", "functionName"))
@@ -286,7 +289,7 @@ public class RetryTest {
     @Test
     public void shouldRetryInfo(){
 
-        when(reactorClient.info(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.<String>any()))
+        when(reactorClient.info(any(), any(), anyString()))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.info(null, null, "functionName"))
@@ -296,7 +299,7 @@ public class RetryTest {
     @Test
     public void shouldRetryInfoList(){
 
-        when(reactorClient.info(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.<List<String>>any()))
+        when(reactorClient.info(any(), any(), ArgumentMatchers.<List<String>>any()))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.info(null, null, asList("functionName", "functionName2")))
@@ -306,8 +309,8 @@ public class RetryTest {
     @Test
     public void shouldRetryCreateIndex(){
 
-        when(reactorClient.createIndex(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(reactorClient.createIndex(any(), anyString(), anyString(), anyString(), anyString(),
+                any(IndexType.class), any(IndexCollectionType.class), any(CTX[].class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.createIndex(null, "ns", "st", "ind", "bb",
@@ -316,10 +319,21 @@ public class RetryTest {
     }
 
     @Test
+    public void shouldRetryCreateExpressionIndex(){
+
+        when(reactorClient.createIndex(any(), anyString(), anyString(), anyString(),
+                any(IndexType.class), any(IndexCollectionType.class), any(Expression.class)))
+                .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
+
+        StepVerifier.create(retryClient.createIndex(null, "ns", "st", "ind",
+                        IndexType.NUMERIC, IndexCollectionType.DEFAULT, Expression.fromBase64("")))
+                .verifyError(AerospikeException.Timeout.class);
+    }
+
+    @Test
     public void shouldRetryDropIndex(){
 
-        when(reactorClient.dropIndex(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(),
-                ArgumentMatchers.any()))
+        when(reactorClient.dropIndex(any(), any(), any(), any()))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.dropIndex(null, "ns", "st", "ind"))
