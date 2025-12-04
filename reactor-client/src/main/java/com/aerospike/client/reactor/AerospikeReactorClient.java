@@ -20,6 +20,7 @@ import com.aerospike.client.*;
 import com.aerospike.client.async.AsyncIndexTask;
 import com.aerospike.client.cdt.CTX;
 import com.aerospike.client.cluster.Node;
+import com.aerospike.client.exp.Expression;
 import com.aerospike.client.policy.*;
 import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
@@ -388,7 +389,19 @@ public class AerospikeReactorClient implements IAerospikeReactorClient{
 				policy != null ? new InfoPolicy(policy) : aerospikeClient.getInfoPolicyDefault());
 	}
 
-	@Override
+    @Override
+    public Mono<Void> createIndex(Policy policy, String namespace, String setName, String indexName,
+                                  IndexType indexType, IndexCollectionType indexCollectionType, Expression expression) {
+        Mono<AsyncIndexTask> asyncIndexTask = Mono.create(
+                sink -> aerospikeClient.createIndex(null,
+                        new ReactorIndexListener(sink), policy, namespace, setName, indexName, indexType,
+                        indexCollectionType, expression)
+        );
+        return waitTillComplete(
+                asyncIndexTask, policy != null ? new InfoPolicy(policy) : aerospikeClient.getInfoPolicyDefault());
+    }
+
+    @Override
 	public Mono<Void> dropIndex(Policy policy, String namespace, String setName, String indexName){
 		return waitTillComplete(
 				dropIndexImpl(policy, namespace, setName, indexName),

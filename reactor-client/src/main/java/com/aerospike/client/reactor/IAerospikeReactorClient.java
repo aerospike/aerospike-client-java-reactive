@@ -19,6 +19,7 @@ package com.aerospike.client.reactor;
 import com.aerospike.client.*;
 import com.aerospike.client.cdt.CTX;
 import com.aerospike.client.cluster.Node;
+import com.aerospike.client.exp.Expression;
 import com.aerospike.client.policy.*;
 import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
@@ -807,6 +808,26 @@ public interface IAerospikeReactorClient extends DefaultPolicyProvider, Closeabl
 	Mono<Void> createIndex(Policy policy,
 						   String namespace, String setName, String indexName, String binName,
 			               IndexType indexType, IndexCollectionType indexCollectionType, CTX... ctx);
+
+
+    /**
+     * Reactively create expression based secondary index to be used on bins containing collections.
+     * Available for server version 8.1+
+     *<p>
+     *     <a href>https://aerospike.com/docs/database/learn/architecture/data-storage/secondary-index/#expression-indexes</a>
+     *</p>
+     * @param policy				generic configuration parameters, pass in null for defaults
+     * @param namespace				namespace - equivalent to database name
+     * @param setName				optional set name - equivalent to database table
+     * @param indexName				name of secondary index
+     * @param indexType				underlying data type of secondary index
+     * @param indexCollectionType	index collection type
+     * @throws AerospikeException	if index create fails
+     */
+	Mono<Void> createIndex(Policy policy,
+		String namespace, String setName, String indexName,
+		IndexType indexType, IndexCollectionType indexCollectionType, Expression expression);					   
+    
 
 	/**
 	 * Reactively delete secondary index.
