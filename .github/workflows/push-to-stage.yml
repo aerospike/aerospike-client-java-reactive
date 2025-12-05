@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - CLIENT-3877-fix-javadoc-jar
   workflow_dispatch:
   #   - '[0-9]+.[0-9]+.[0-9]+'
 
