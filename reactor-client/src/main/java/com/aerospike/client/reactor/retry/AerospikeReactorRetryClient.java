@@ -19,6 +19,7 @@ package com.aerospike.client.reactor.retry;
 import com.aerospike.client.*;
 import com.aerospike.client.cdt.CTX;
 import com.aerospike.client.cluster.Node;
+import com.aerospike.client.exp.Expression;
 import com.aerospike.client.policy.*;
 import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
@@ -324,7 +325,14 @@ public class AerospikeReactorRetryClient implements IAerospikeReactorClient {
 				.retryWhen(retryPolicy);
 	}
 
-	@Override
+    @Override
+    public Mono<Void> createIndex(Policy policy, String namespace, String setName, String indexName,
+                                  IndexType indexType, IndexCollectionType indexCollectionType, Expression expression) {
+        return client.createIndex(policy, namespace, setName, indexName, indexType, indexCollectionType, expression)
+                .retryWhen(retryPolicy);
+    }
+
+    @Override
 	public Mono<Void> dropIndex(Policy policy, String namespace, String setName, String indexName){
 		return client.dropIndex(policy, namespace, setName, indexName).retryWhen(retryPolicy);
 	}
