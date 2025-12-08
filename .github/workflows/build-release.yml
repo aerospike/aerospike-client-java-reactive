@@ -85,6 +85,7 @@ jobs:
       gh-retention-days: 1
       gh-artifact-name: signed_build-artifacts-${{ needs.extract-version.outputs.version }}
       gh-unsigned-artifacts: build-artifacts-${{ needs.extract-version.outputs.version }}
+      gh-workflows-ref: 27a8f94358fc31d2f7445ad6fa62d839890ce479
     secrets:
       gpg-private-key: ${{ secrets.GPG_SECRET_KEY }}
       gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
