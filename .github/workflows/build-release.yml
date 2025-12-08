@@ -38,6 +38,7 @@ jobs:
       gh-checkout-path: shared-workflows
       gh-source-path: aerospike-client-java-reactive
       working-directory: aerospike-client-java-reactive
+      gh-workflows-ref: 27a8f94358fc31d2f7445ad6fa62d839890ce479
       setup-java: true
       java-version: 8
       java-distribution: "temurin"
