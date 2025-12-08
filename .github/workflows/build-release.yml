@@ -114,6 +114,7 @@ jobs:
       jf-project: ${{ vars.JFROG_PROJECT }}
       jf-build-names: aerospike-client-java-reactive:${{ github.run_number }}
       jf-bundle-name: aerospike-client-java-reactive
+      gh-workflows-ref: 27a8f94358fc31d2f7445ad6fa62d839890ce479
       version: ${{ needs.extract-version.outputs.version }}
       oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
       oidc-audience: ${{ vars.OIDC_AUDIENCE }}
