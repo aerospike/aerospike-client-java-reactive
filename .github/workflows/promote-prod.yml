@@ -1,0 +1,8 @@
+name: Promote to Prod (test)
+on:
+  workflow_dispatch:
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Testing workflow"
