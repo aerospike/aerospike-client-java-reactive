@@ -79,8 +79,6 @@ jobs:
             exit 1
           fi
           
-          echo "=== Retrieved Build Info ==="
-          echo "$BUILD_INFO"
           echo build-info=$(jf rt curl "${API_PATH}" ) >> $GITHUB_OUTPUT
 
       # Snapshot builds are not promoted to production. We consider a snapshot build if the version in pom has been updated/changed as part of changes
@@ -101,13 +99,22 @@ jobs:
       - name: Get commit hash from repo
         id: get-commit-hash
         run: |
-          echo commit-hash=$(echo '${{ steps.get-build-info.outputs.build-info }}' | jq -r '.buildInfo.vcs[].revision') >> $GITHUB_OUTPUT
+          BUILD_INFO='${{ steps.get-build-info.outputs.build-info }}'
+
+          # Try to get from vcs first
+          COMMIT_HASH=$(echo "$BUILD_INFO" | jq -r '.buildInfo.vcs[0].revision // empty')
+
+          if [ -z "$COMMIT_HASH" ] || [ "$COMMIT_HASH" == "null" ]; then
+            # Fallback: extract from module ID
+            COMMIT_HASH=$(echo "$BUILD_INFO" | jq -r '.buildInfo.modules[0].id' | sed -E 's/.*SNAPSHOT_(.*)$/\1/')
+          fi
+          echo "commit-hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
 
       # Fetching build name for build promotion process. The build name will contain build numbers. This command parses json and pulls out the build name
       - name: Get build name
         id: get-build-name
         run: |
-          echo build-names=$(echo '${{ steps.get-build-info.outputs.build-info }}' | jq -r '.buildInfo.modules[].id | sub("/[0-9]+$"; "")') >> $GITHUB_OUTPUT
+          echo build-names=$(echo '${{ steps.get-build-info.outputs.build-info }}' | jq -r '.buildInfo.name') >> $GITHUB_OUTPUT
 
       - name: Debug
         run: |
@@ -118,16 +125,16 @@ jobs:
       - name: Promote build
         shell: bash
         run: |
-          BUILD_NAMES=(${{ steps.get-build-name.outputs.build-names }})
-
-          if [ ${#MODULES[@]} -eq 0 ];then
-            echo "Missing build names for modules in '${{ inputs.jf-target-build }}'"
+          BUILD_NAME="${{ steps.get-build-name.outputs.build-name }}"
+          BUILD_NUMBER="${{ inputs.build-number }}"
+    
+          if [ -z "$BUILD_NAME" ]; then
+            echo "Error: Missing build name"
+            exit 1
           fi
-
-          for BUILD_NAME in "${BUILD_NAMES[@]}"; do
-            echo "Promoting '$BUILD_NAME'"
-            # jf rt build-promote --copy=true "$BUILD_NAME" ${{ inputs.build-number }} ${{ inputs.target-repository }}
-          done
+    
+          echo "Promoting build '$BUILD_NAME' (build #$BUILD_NUMBER) to ${{ inputs.target-repository }}"
+          # jf rt build-promote --copy=true "$BUILD_NAME" "$BUILD_NUMBER" "${{ inputs.target-repository }}"
 
       # Fetching release notes from commit logs
       - name: Generate release notes
