@@ -18,7 +18,7 @@ jobs:
     name: Promote from stage to prod
     uses: ./.github/workflows/promote.yaml
     with:
-      build-number: ${{ inputs.build-number }}
+      build-number: 16
       target-repository: clients-maven-stage-local
       target-branch: main
       source-branch: stage
