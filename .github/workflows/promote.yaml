@@ -78,13 +78,18 @@ jobs:
 
             exit 1
           fi
-
+          
+          echo "=== Retrieved Build Info ==="
+          echo "$BUILD_INFO"
           echo build-info=$(jf rt curl "${API_PATH}" ) >> $GITHUB_OUTPUT
 
       # Snapshot builds are not promoted to production. We consider a snapshot build if the version in pom has been updated/changed as part of changes
       # we are promoting in the build
       - name: Check if snapshot build
         run: |
+          echo "DEBUG: Raw build-info:"
+          echo '${{ steps.get-build-info.outputs.build-info }}'
+          echo "DEBUG: Parsed IS_SNAPSHOT=$IS_SNAPSHOT"
           IS_SNAPSHOT=$(echo '${{ steps.get-build-info.outputs.build-info }}' | jq -cr '.buildInfo.properties."buildInfo.env.IS_SNAPSHOT"')
           if [ $IS_SNAPSHOT == 'true' ];then
             echo "Error build ${{ inputs.jf-target-build }} with build number ${{ inputs.build-number }} is a SNAPSHOT build. Snapshots are not promoted to production."
@@ -169,7 +174,7 @@ jobs:
 
       - name: Get artifact version
         id: get-artifact-version
-        working-directory: client # The version will be the same for all the modules in the project. Taking client since this is the module that is released.
+        working-directory: reactor-client # The version will be the same for all the modules in the project. Taking client since this is the module that is released.
         run: |
           echo "artifact-version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | jq -Rc '[.]')" >> $GITHUB_OUTPUT
 
