@@ -47,7 +47,7 @@ runs:
       uses: jfrog/setup-jfrog-cli@v4
       env:
         JF_URL: ${{ inputs.jfrog-platform-url }}
-        JF_PROJECT: clients
+        JF_PROJECT: database
       with:
         oidc-provider-name: ${{ inputs.oidc-provider }}
         oidc-audience: ${{ inputs.oidc-audience }}
@@ -61,7 +61,7 @@ runs:
         BUILD_NAME="${INPUT%/*}" # Getting the build name
         BUILD_NUMBER="${INPUT#*/}" # Getting build number
 
-        BUILD_INFO=$(jf rt curl "/api/build/${BUILD_NAME}/${BUILD_NUMBER}?project=clients" | jq -c ".")
+        BUILD_INFO=$(jf rt curl "/api/build/${BUILD_NAME}/${BUILD_NUMBER}?project=database" | jq -c ".")
         echo build-info="${BUILD_INFO}" >> $GITHUB_OUTPUT
 
     - name: Get build name
@@ -82,7 +82,7 @@ runs:
       shell: bash
       working-directory: ${{ fromJson(inputs.staging-folder)[0] }}
       run: |
-        jf rt dl "${{ inputs.target-repository }}/com/aerospike/${{ steps.get-build-name.outputs.build-name }}/${{ inputs.artifact-version }}/*" --project clients .
+        jf rt dl "${{ inputs.target-repository }}/com/aerospike/${{ steps.get-build-name.outputs.build-name }}/${{ inputs.artifact-version }}/*" --project database .
 
     - name: Debug list downloaded content
       shell: bash

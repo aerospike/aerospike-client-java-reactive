@@ -35,24 +35,6 @@ runs:
         echo "${{ inputs.release-notes }}"
         echo "${{ inputs.build-name-number }}"
 
-    - id: get-jdk-version
-      shell: bash
-      run: |
-        # Building array from json input
-        JDK_VERSIONS=($(echo '${{ inputs.build-name-number }}' | jq -r '.[] | match("jdk[^/]+").string'))
-
-        # Creating count of number of unique jdk versions
-        UNIQUE_COUNT=$(printf "%s\n" "${JDK_VERSIONS[@]}" | sort -u | wc -l)
-
-        # If the input contains more than one JDK version we know this case cannot exists therefore exit with error
-        if [ "$UNIQUE_COUNT" -eq 1 ]; then
-          # All JDK versions are the same: ${JDK_VERSIONS[0]}
-          echo jdk-version="${JDK_VERSIONS[0]}" >> $GITHUB_OUTPUT
-        else
-          echo "Found multiple JDK versions: ${JDK_VERSIONS[*]}"
-          exit 1
-        fi
-
     - id: get-artifact-version
       shell: bash
       run: |
@@ -100,7 +82,7 @@ runs:
       uses: softprops/action-gh-release@v2
       with:
         token: ${{ inputs.github-token }}
-        tag_name: ${{ steps.get-artifact-version.outputs.artifact-version }}${{ steps.get-jdk-version.outputs.jdk-version == 'jdk8' && '-jdk8' || '' }}
+        tag_name: ${{ steps.get-artifact-version.outputs.artifact-version }}
         body: |
           Changes for release ${{ steps.get-artifact-version.outputs.artifact-version }}
           "${{ inputs.release-notes }}"

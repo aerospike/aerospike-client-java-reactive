@@ -28,7 +28,7 @@ inputs:
 
 outputs:
   maven-central-release-id:
-    description: Maven centrail id extracted from staging step to maven central
+    description: Maven central id extracted from staging step to maven central
     value: ${{ steps.get-maven-central-release-id.outputs.maven-central-release-id }}
 
 runs:
