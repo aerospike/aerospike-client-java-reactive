@@ -121,7 +121,7 @@ jobs:
 
           for BUILD_NAME in "${BUILD_NAMES[@]}"; do
             echo "Promoting '$BUILD_NAME'"
-            jf rt build-promote --copy=true "$BUILD_NAME" ${{ inputs.build-number }} ${{ inputs.target-repository }}
+            # jf rt build-promote --copy=true "$BUILD_NAME" ${{ inputs.build-number }} ${{ inputs.target-repository }}
           done
 
       # Fetching release notes from commit logs
@@ -142,24 +142,24 @@ jobs:
         shell: bash
         run: |
           # Making sure we have latest history in place to be able to fast forward merge
-          git status
-          git checkout ${{ inputs.source-branch }}
-          git checkout ${{ inputs.target-branch }}
-          git merge --ff-only ${{ inputs.source-branch }}
+          echo "git status"
+          echo "git checkout ${{ inputs.source-branch }}"
+          echo "git checkout ${{ inputs.target-branch }}"
+          echo "git merge --ff-only ${{ inputs.source-branch }}"
 
       # Adding commit message for promotion
-      - name: Add tagging message
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "Promote to prod [skip ci]"
-          commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          tagging_message: Promote to PROD
-          branch: ${{ inputs.target-branch }}
+      # - name: Add tagging message
+      #  uses: stefanzweifel/git-auto-commit-action@v4
+      #  with:
+      #    commit_message: "Promote to prod [skip ci]"
+      #    commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+      #    tagging_message: Promote to PROD
+      #    branch: ${{ inputs.target-branch }}
 
       # Pushing changes to remote head branch
-      - name: Upload changes to remote head branch
-        shell: bash
-        run: git push
+      #- name: Upload changes to remote head branch
+      #  shell: bash
+      #  run: git push
 
       # Passing build-name-numbers and artifact-version to the next job
       - name: Get build name with build number
@@ -219,7 +219,8 @@ jobs:
           validation-max-number-checks: ${{ vars.VALIDATION_MAX_NUMBER_CHECKS }}
           sonatype-domain-name: ${{ vars.SONATYPE_DOMAIN_NAME }}
       
-      # Publishing release information to JFrog for aggregation. This information is used later for final release step (acknowledgement) to Maven Central
+      # Publishing release information to JFrog for aggregation. This information is used later for final release step
+      # (acknowledgement) to Maven Central
       - uses: ./.github/actions/publish-build-info-to-jfrog
         with:
           oidc-provider: ${{ secrets.JFROG_OIDC_PROVIDER }}

@@ -85,7 +85,7 @@ runs:
         TOKEN=$(printf "${{ inputs.publish-user }}:${{ inputs.publish-password }}" | base64)
 
         echo "curl --request POST --verbose --header 'Authorization: Bearer ${TOKEN}' --form bundle=@${{ steps.create-artifact.outputs.artifact-name }}.zip ${{ inputs.sonatype-domain-name }}/api/v1/publisher/upload?publishingType=USER_MANAGED"
-        echo stage-release-id=$(curl --request POST --silent --header "Authorization: Bearer ${TOKEN}" --form bundle=@${{ steps.create-artifact.outputs.artifact-name }}.zip ${{ inputs.sonatype-domain-name }}/api/v1/publisher/upload?publishingType=USER_MANAGED) >> $GITHUB_OUTPUT
+        # echo stage-release-id=$(curl --request POST --silent --header "Authorization: Bearer ${TOKEN}" --form bundle=@${{ steps.create-artifact.outputs.artifact-name }}.zip ${{ inputs.sonatype-domain-name }}/api/v1/publisher/upload?publishingType=USER_MANAGED) >> $GITHUB_OUTPUT
 
     # Validation check loop
     - name: Check validation
@@ -121,9 +121,9 @@ runs:
         done
 
     # Peculating up the maven central release id
-    - name: Maven Central release id
-      working-directory: ${{ inputs.target-folder }}
-      id: get-maven-central-release-id
-      shell: bash
-      run: |
-        echo "maven-central-release-id=${{ steps.stage-release.outputs.stage-release-id }}" >> $GITHUB_OUTPUT
+    #- name: Maven Central release id
+    #  working-directory: ${{ inputs.target-folder }}
+    #  id: get-maven-central-release-id
+    #  shell: bash
+    #  run: |
+    #    echo "maven-central-release-id=${{ steps.stage-release.outputs.stage-release-id }}" >> $GITHUB_OUTPUT
