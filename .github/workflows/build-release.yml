@@ -53,7 +53,8 @@ jobs:
 
         # Maven build
         if [ "${{ needs.extract-version.outputs.is-snapshot }}" == "true" ]; then
-          mvn versions:set -DnewVersion="${{ needs.extract-version.outputs.version }}" -DgenerateBackupPoms=false -DprocessAllModules
+          pom_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          mvn versions:set -DnewVersion="${pom_version}-SNAPSHOT" -DgenerateBackupPoms=false -DprocessAllModules
         fi
         
         mvn clean install -B -U -Dgpg.skip=true
@@ -70,7 +71,9 @@ jobs:
 
         cd -
 
+        echo "ARTIFACT_PATH: $ARTIFACT_PATH"
         echo "Copying artifacts to ./build/"
+        
         for file in "$ARTIFACT_PATH"/*; do
           if [[ "$file" == *"-jar-with-dependencies.jar" ]] || [[ "$file" == *"_remote.repositories" ]]; then
             continue
