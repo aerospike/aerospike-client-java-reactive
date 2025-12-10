@@ -105,38 +105,54 @@ runs:
       working-directory: ${{ inputs.target-folder }}
       shell: bash
       run: |
-        TOKEN=$(printf "${{ inputs.publish-user }}:${{ inputs.publish-password }}" | base64)
-
+        # Correct: Sonatype Publisher API uses Basic auth, not Bearer
+        TOKEN=$(printf "%s:%s" "${{ inputs.publish-user }}" "${{ inputs.publish-password }}" | base64)
+        
         NUMBER_OF_CHECKS=${{ inputs.validation-max-number-checks }}
-
+        
+        echo "Starting Sonatype validation checks (max: ${NUMBER_OF_CHECKS})"
+        
         for ((i = 1; i <= NUMBER_OF_CHECKS; i++)); do
-          RESPONSE=$(curl --request POST --silent --header "Authorization: Bearer ${TOKEN}" '${{ inputs.sonatype-domain-name }}/api/v1/publisher/status?id=${{ steps.stage-release.outputs.stage-release-id }}' | jq -cr '.')
+          RESPONSE=$(curl --silent --show-error \
+            --request POST \
+            --header "Authorization: Basic ${TOKEN}" \
+            "${{ inputs.sonatype-domain-name }}/api/v1/publisher/status?id=${{ steps.stage-release.outputs.stage-release-id }}")
+        
           echo "RAW SONATYPE RESPONSE:"
           echo "-----------------------"
           echo "${RESPONSE}"
           echo "-----------------------"
-          
-          SONATYPE_RESPONSE=$(echo "${RESPONSE}" | jq -cr '.deploymentState')
-
-          if [[ ${SONATYPE_RESPONSE} == 'FAILED' ]]; then
-            ERRORS=$(echo "${RESPONSE}" | jq '.errors')
-            echo "Package validation failed. Check build package logs to determine potential reasons why the uploaded package is not valid."
+        
+          # Validate JSON and extract deploymentState
+          SONATYPE_RESPONSE=$(echo "${RESPONSE}" | jq -r '.deploymentState // "NULL"')
+        
+          if [[ "${SONATYPE_RESPONSE}" == "FAILED" ]]; then
+            ERRORS=$(echo "${RESPONSE}" | jq '.errors // "Unknown error"')
+            echo "Package validation failed."
             echo "Errors: ${ERRORS}"
-
             exit 1
-          elif [[ ${SONATYPE_RESPONSE} == 'VALIDATING' || ${SONATYPE_RESPONSE} == 'PENDING' ]]; then
+        
+          elif [[ "${SONATYPE_RESPONSE}" == "VALIDATING" || "${SONATYPE_RESPONSE}" == "PENDING" ]]; then
             echo "Package validation is not done. Status: ${SONATYPE_RESPONSE}"
-
+        
             # Exponential backoff
             sleep_time=$((2 ** (i - 1)))
-            echo "Next retry in ${sleep_time} second ...."
-            sleep "$sleep_time"
-          elif [[ "${SONATYPE_RESPONSE}" == 'VALIDATED' ]]; then
-            echo "Package is validated. Run release confirmation."
-
+            echo "Next retry in ${sleep_time} seconds..."
+            sleep "${sleep_time}"
+        
+          elif [[ "${SONATYPE_RESPONSE}" == "VALIDATED" ]]; then
+            echo "Package successfully validated."
             exit 0
+        
+          else
+            echo "Unknown response from Sonatype: ${SONATYPE_RESPONSE}"
+            echo "Full payload:"
+            echo "${RESPONSE}"
           fi
         done
+        
+        echo "Validation timed out after ${NUMBER_OF_CHECKS} attempts."
+        exit 1
 
     # Peculating up the maven central release id
     #- name: Maven Central release id
