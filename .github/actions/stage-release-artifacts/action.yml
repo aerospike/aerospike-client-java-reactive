@@ -70,6 +70,25 @@ runs:
       run: |
         echo build-name=$(echo '${{ steps.get-build-info.outputs.build-info }}' | jq -r '.buildInfo.modules[].id | sub("/[0-9]+$"; "")') >> $GITHUB_OUTPUT
 
+    - name: Get artifact build info
+      shell: bash
+      id: get-artifact-build-info
+      run: |
+        BUILD_INFO='${{ steps.get-build-info.outputs.build-info }}'
+        
+        # Get the artifact build ID (e.g., "aerospike-client-java-reactive/22-artifacts")
+        ARTIFACT_BUILD_ID=$(echo "${BUILD_INFO}" | jq -r '.buildInfo.modules[] | select(.id | contains("-artifacts")) | .id')
+        echo "Artifact Build ID: ${ARTIFACT_BUILD_ID}"
+        
+        # Extract just the build number (e.g., "22-artifacts")
+        ARTIFACT_BUILD_NUMBER=$(echo "${ARTIFACT_BUILD_ID}" | cut -d'/' -f2)
+        echo "Artifact Build Number: ${ARTIFACT_BUILD_NUMBER}"
+        
+        # Fetch the actual artifact build info
+        ARTIFACT_BUILD_INFO=$(jf rt curl "/api/build/aerospike-client-java-reactive/${ARTIFACT_BUILD_NUMBER}?project=database" | jq -c ".")
+        echo artifact-build-info="${ARTIFACT_BUILD_INFO}" >> $GITHUB_OUTPUT
+        
+
     - name: Create staging folders
       shell: bash
       run: |
@@ -97,16 +116,16 @@ runs:
       shell: bash
       working-directory: ${{ fromJson(inputs.staging-folder)[0] }}
       run: |
-        BUILD_INFO='${{ steps.get-build-info.outputs.build-info }}'
+        BUILD_INFO='${{ steps.get-artifact-build-info.outputs.artifact-build-info }}'
         MODULES=$(echo "${BUILD_INFO}" | jq -c '.buildInfo.modules[].artifacts[]')
         STAGE_DIR="$(find . -type f -name '*.jar' -exec realpath {} \; | head -n 1 | xargs dirname)"
-
+        
         for MODULE in ${MODULES}; do
           NAME=$(echo "${MODULE}" | jq -r ".name")
           SHA1=$(echo "${MODULE}" | jq -r ".sha1")
           SHA256=$(echo "${MODULE}" | jq -r ".sha256")
           MD5=$(echo "${MODULE}" | jq -r ".md5")
-
+        
           FILE_NAME="${STAGE_DIR}/${NAME}"
           echo "$FILE_NAME"
           echo "${SHA1}" >"${FILE_NAME}.sha1"
