@@ -18,7 +18,7 @@ jobs:
     name: Promote from stage to prod
     uses: ./.github/workflows/promote.yaml
     with:
-      build-number: 16
+      build-number: 17
       target-repository: database-maven-dev-local
       target-branch: main
       source-branch: stage
