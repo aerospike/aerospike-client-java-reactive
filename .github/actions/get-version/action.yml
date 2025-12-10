@@ -9,6 +9,19 @@ runs:
       id: get-is-snapshot
       shell: bash
       run: |
+        # Check if tagged with release or release candidate
+        TAG=$(git describe --exact-match --tags HEAD 2>/dev/null || echo "")
+        
+        if [[ "$TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Production release tag detected: $TAG"
+          echo "is-snapshot=false" >> $GITHUB_OUTPUT
+          exit 0
+        elif [[ "$TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+$ ]]; then
+          echo "Release candidate tag detected: $TAG"
+          echo "is-snapshot=false" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        
         # Getting previous commit
         COMMIT_REF="HEAD~1"
 
@@ -28,9 +41,9 @@ runs:
         echo "old versions: ${OLD_VERSIONS}, new versions: ${NEW_VERSIONS}"
         # Compare the extracted versions. CI will not commit snapshot version.
         if [[ "${OLD_VERSIONS}" != "${NEW_VERSIONS}" ]]; then
-          echo "is-snapshot='false'" >> $GITHUB_OUTPUT
+          echo "is-snapshot=false" >> $GITHUB_OUTPUT
         else
-          echo "is-snapshot='true'" >> $GITHUB_OUTPUT
+          echo "is-snapshot=true" >> $GITHUB_OUTPUT
         fi
 
     - name: Get release or snapshot-version
@@ -38,7 +51,7 @@ runs:
       shell: bash
       run: |
         IS_SNAPSHOT=${{ steps.get-is-snapshot.outputs.is-snapshot }}
-        if [ $IS_SNAPSHOT == 'true' ];then
+        if [ $IS_SNAPSHOT == "true" ];then
           echo release-version="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)-SNAPSHOT_$GITHUB_SHA" >> $GITHUB_OUTPUT
         else
           echo release-version="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
