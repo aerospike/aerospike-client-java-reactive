@@ -85,7 +85,11 @@ runs:
         ARTIFACT_BUILD_INFO=$(jf rt curl "/api/build/aerospike-client-java-reactive/${ARTIFACT_BUILD_NUMBER}?project=database" | jq -c ".")
         echo artifact-build-info="${ARTIFACT_BUILD_INFO}" >> $GITHUB_OUTPUT
 
-        # Extract the actual Maven artifact name (aerospike-reactor-client)
+        # DEBUG: Print the entire artifact build info to see its structure
+        echo "=== FULL ARTIFACT BUILD INFO ==="
+        echo "${ARTIFACT_BUILD_INFO}" | jq '.'
+        echo "=== END ==="
+
         ARTIFACT_NAME=$(echo "${ARTIFACT_BUILD_INFO}" | jq -r '.buildInfo.modules[0].id')
         echo "Artifact Name: ${ARTIFACT_NAME}"
         echo artifact-name="${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
