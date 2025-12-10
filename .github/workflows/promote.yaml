@@ -184,9 +184,11 @@ jobs:
 
       - name: Get artifact version
         id: get-artifact-version
-        working-directory: reactor-client # The version will be the same for all the modules in the project. Taking client since this is the module that is released.
+        working-directory: reactor-client
         run: |
-          echo "artifact-version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | jq -Rc '[.]')" >> $GITHUB_OUTPUT
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "artifact-version=$VERSION" >> $GITHUB_OUTPUT
+
 
       - name: Debug show 'build-name-numbers' and 'artifact-version'
         run: |
