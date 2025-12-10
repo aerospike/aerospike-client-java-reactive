@@ -68,7 +68,7 @@ runs:
       shell: bash
       id: get-build-name
       run: |
-        echo build-name=$(echo '${{ steps.get-build-info.outputs.build-info }}' | jq -r '.buildInfo.modules[].id | sub("/[0-9]+$"; "")') >> $GITHUB_OUTPUT
+        echo build-name=$(echo '${{ steps.get-build-info.outputs.build-info }}' | jq -r '.buildInfo.name') >> $GITHUB_OUTPUT
 
     - name: Get artifact build info
       shell: bash
