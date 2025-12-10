@@ -75,19 +75,21 @@ runs:
       id: get-artifact-build-info
       run: |
         BUILD_INFO='${{ steps.get-build-info.outputs.build-info }}'
-        
-        # Get the artifact build ID (e.g., "aerospike-client-java-reactive/22-artifacts")
+
         ARTIFACT_BUILD_ID=$(echo "${BUILD_INFO}" | jq -r '.buildInfo.modules[] | select(.id | contains("-artifacts")) | .id')
         echo "Artifact Build ID: ${ARTIFACT_BUILD_ID}"
-        
-        # Extract just the build number (e.g., "22-artifacts")
+
         ARTIFACT_BUILD_NUMBER=$(echo "${ARTIFACT_BUILD_ID}" | cut -d'/' -f2)
         echo "Artifact Build Number: ${ARTIFACT_BUILD_NUMBER}"
-        
-        # Fetch the actual artifact build info
+
         ARTIFACT_BUILD_INFO=$(jf rt curl "/api/build/aerospike-client-java-reactive/${ARTIFACT_BUILD_NUMBER}?project=database" | jq -c ".")
         echo artifact-build-info="${ARTIFACT_BUILD_INFO}" >> $GITHUB_OUTPUT
-        
+
+        # Extract the actual Maven artifact name (aerospike-reactor-client)
+        ARTIFACT_NAME=$(echo "${ARTIFACT_BUILD_INFO}" | jq -r '.buildInfo.modules[0].id')
+        echo "Artifact Name: ${ARTIFACT_NAME}"
+        echo artifact-name="${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+    
 
     - name: Create staging folders
       shell: bash
@@ -101,7 +103,7 @@ runs:
       shell: bash
       working-directory: ${{ fromJson(inputs.staging-folder)[0] }}
       run: |
-        jf rt dl "${{ inputs.target-repository }}/com/aerospike/${{ steps.get-build-name.outputs.build-name }}/${{ inputs.artifact-version }}/*" --project database .
+        jf rt dl "${{ inputs.target-repository }}/com/aerospike/${{ steps.get-artifact-build-info.outputs.artifact-name }}/${{ inputs.artifact-version }}/*" --project database .
 
     - name: Debug list downloaded content
       shell: bash
