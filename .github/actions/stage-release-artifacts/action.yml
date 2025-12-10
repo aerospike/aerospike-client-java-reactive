@@ -19,7 +19,7 @@ inputs:
   target-repository:
     description: "Target repository in JFROG"
     required: false
-    default: clients-maven-stage-local # TODO update for production releases
+    default: database-maven-dev-local
   build-name-number:
     description: "Build name and number"
     required: true
