@@ -207,7 +207,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.target-branch }}
+          ref: ${{ github.head_ref }}
           token: ${{ secrets.CLIENT_BOT_PAT }}
 
       # Pulling release from JFROG
