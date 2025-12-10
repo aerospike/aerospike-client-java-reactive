@@ -226,7 +226,7 @@ jobs:
       - uses: ./.github/actions/publish-to-sonatype
         id: publish-to-sonatype
         with:
-          build-name-number: ${{ matrix.build-name-number }}
+          build-name-number: ${{ needs.promote.outputs.build-name-number }}
           publish-user: ${{ secrets.AEROSPIKE_SA_CICD_USERNAME }}
           publish-password: ${{ secrets.AEROSPIKE_SA_CICD_PASSWORD }}
           validation-max-number-checks: ${{ vars.VALIDATION_MAX_NUMBER_CHECKS }}
@@ -238,7 +238,7 @@ jobs:
         with:
           oidc-provider: ${{ secrets.JFROG_OIDC_PROVIDER }}
           oidc-audience: ${{ secrets.JFROG_OIDC_AUDIENCE }}
-          build-path: ${{ matrix.build-name-number }}
+          build-path: ${{ needs.promote.outputs.build-name-number }}
           variables: '{"SONATYPE_STAGING_BUILD_ID":"${{ steps.publish-to-sonatype.outputs.maven-central-release-id }}"}'
 
   publish-release-github:
