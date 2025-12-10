@@ -119,7 +119,7 @@ jobs:
       - name: Debug
         run: |
           echo "commit-hash: '${{ steps.get-commit-hash.outputs.commit-hash }}'"
-          echo "build-names: '${{ steps.get-build-name.outputs.build-names }}'"
+          echo "build-name: '${{ steps.get-build-name.outputs.build-names }}'"
 
       # Promoting build to production
       - name: Promote build
