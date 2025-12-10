@@ -125,7 +125,7 @@ jobs:
       - name: Promote build
         shell: bash
         run: |
-          BUILD_NAME="${{ steps.get-build-name.outputs.build-name }}"
+          BUILD_NAME="${{ steps.get-build-name.outputs.build-names }}"
           BUILD_NUMBER="${{ inputs.build-number }}"
     
           if [ -z "$BUILD_NAME" ]; then
