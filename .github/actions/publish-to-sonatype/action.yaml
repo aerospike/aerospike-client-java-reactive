@@ -25,6 +25,9 @@ inputs:
   build-name-number:
     required: true
     description: "Build name and number"
+  artifact-version:
+    description: "Artifact version"
+    required: true
 
 outputs:
   maven-central-release-id:
@@ -41,6 +44,7 @@ runs:
         echo "${{ inputs.target-folder }}"
         echo "${{ inputs.sonatype-domain-name }}"
         echo "${{ inputs.build-name-number }}"
+        echo "${{ inputs.artifact-version }}"
 
     # For Maven Central we need to filter out the jar-with-dependencies
     # as it is not allowed to be uploaded to Maven Central
@@ -55,17 +59,26 @@ runs:
           \! \( -name "*jar-with-dependencies*" \) \
           -exec cp --parents {} "$dest" \;
 
+    - name: Debug target folder contents
+      shell: bash
+      working-directory: ${{ inputs.target-folder }}
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "Contents:"
+        ls -laR
+
     # Creates uploadable archive
     - name: Create upload archive for sonatype
       id: create-artifact
       shell: bash
       working-directory: ${{ inputs.target-folder }}
       run: |
-        RELEASE=$(echo "${{ inputs.build-name-number }}" | sed -E 's/.*_([^/]+)\/.*/\1/')
-        RELEASE_BUILD_NUMBER=$(echo  "${{ inputs.build-name-number }}" | sed -E 's/.*\/([^/]+)$/\1/')
+        # Use the actual artifact version, not parsed from build-name-number
+        RELEASE="${{ inputs.artifact-version }}"
+        # Extract just the build number from build-name-number
+        RELEASE_BUILD_NUMBER=$(echo "${{ inputs.build-name-number }}" | sed -E 's/.*\/([^/]+)$/\1/')
         ARTIFACT_NAME="${RELEASE}_${RELEASE_BUILD_NUMBER}"
 
-        # adding output variable for debug step later
         echo "artifact-name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
         zip -r "${ARTIFACT_NAME}" .
 

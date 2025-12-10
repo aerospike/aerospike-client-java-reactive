@@ -227,6 +227,7 @@ jobs:
         id: publish-to-sonatype
         with:
           build-name-number: ${{ needs.promote.outputs.build-name-number }}
+          artifact-version: ${{ needs.promote.outputs.artifact-version }}
           publish-user: ${{ secrets.AEROSPIKE_SA_CICD_USERNAME }}
           publish-password: ${{ secrets.AEROSPIKE_SA_CICD_PASSWORD }}
           validation-max-number-checks: ${{ vars.VALIDATION_MAX_NUMBER_CHECKS }}
