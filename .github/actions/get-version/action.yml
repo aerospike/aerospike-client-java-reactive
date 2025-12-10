@@ -21,10 +21,10 @@ runs:
 
         # Getting previous version
         OLD_VERSIONS=$(git show "${COMMIT_REF}:pom.xml" |
-          sed -n '/<revision>/ { s/.*<revision>\([^<]*\)<\/revision>.*/\1/p; q }')
+          sed -n '/<version>/ { s/.*<version>\([^<]*\)<\/revision>.*/\1/p; q }')
 
         # Getting current version
-        NEW_VERSIONS=$(sed -n 's/.*<revision>\([^<]*\)<\/revision>.*/\1/p' pom.xml)
+        NEW_VERSIONS=$(sed -n 's/.*<version>\([^<]*\)<\/revision>.*/\1/p' pom.xml)
 
         echo "old versions: ${OLD_VERSIONS}, new versions: ${NEW_VERSIONS}"
         # Compare the extracted versions. CI will not commit snapshot version.
