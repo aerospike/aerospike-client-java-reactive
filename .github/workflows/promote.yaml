@@ -13,7 +13,7 @@ on:
       jf-target-build:
         type: string
         description: Target build name
-        default: aerospike-reactor-client
+        default: aerospike-client-java-reactive
       source-branch:
         type: string
         required: true
