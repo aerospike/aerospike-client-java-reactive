@@ -33,7 +33,7 @@ jobs:
     with:
       runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
       jf-project: ${{ vars.JFROG_PROJECT }}
-      jf-build-name: aerospike-client-java-reactive
+      jf-build-name: aerospike-reactor-client
       jf-build-id: ${{ github.run_number }}-buildinfo-${{ needs.extract-version.outputs.version }}
       gh-checkout-path: shared-workflows
       gh-source-path: aerospike-client-java-reactive

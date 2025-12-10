@@ -19,7 +19,7 @@ jobs:
     uses: ./.github/workflows/promote.yaml
     with:
       build-number: 16
-      target-repository: clients-maven-stage-local
+      target-repository: database-maven-dev-local
       target-branch: main
       source-branch: stage
     secrets: inherit
