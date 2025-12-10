@@ -109,14 +109,15 @@ runs:
         TOKEN=$(printf "%s:%s" "${{ inputs.publish-user }}" "${{ inputs.publish-password }}" | base64)
         
         NUMBER_OF_CHECKS=${{ inputs.validation-max-number-checks }}
+        DUMMY_ID="this-is-not-a-real-id"
         
         echo "Starting Sonatype validation checks (max: ${NUMBER_OF_CHECKS})"
         
         for ((i = 1; i <= NUMBER_OF_CHECKS; i++)); do
-          RESPONSE=$(curl --silent --show-error \
+          RESPONSE=$(curl --verbose --show-error \
             --request POST \
-            --header "Authorization: Basic ${TOKEN}" \
-            "${{ inputs.sonatype-domain-name }}/api/v1/publisher/status?id=${{ steps.stage-release.outputs.stage-release-id }}")
+            --header "Authorization: Bearer ${TOKEN}" \
+            "${{ inputs.sonatype-domain-name }}/api/v1/publisher/status?id=${DUMMY_ID}")
         
           echo "RAW SONATYPE RESPONSE:"
           echo "-----------------------"
