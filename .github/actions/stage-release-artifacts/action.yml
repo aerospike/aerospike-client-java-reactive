@@ -75,22 +75,18 @@ runs:
       id: get-artifact-build-info
       run: |
         BUILD_INFO='${{ steps.get-build-info.outputs.build-info }}'
-
+        
         ARTIFACT_BUILD_ID=$(echo "${BUILD_INFO}" | jq -r '.buildInfo.modules[] | select(.id | contains("-artifacts")) | .id')
         echo "Artifact Build ID: ${ARTIFACT_BUILD_ID}"
-
+        
         ARTIFACT_BUILD_NUMBER=$(echo "${ARTIFACT_BUILD_ID}" | cut -d'/' -f2)
         echo "Artifact Build Number: ${ARTIFACT_BUILD_NUMBER}"
-
+        
         ARTIFACT_BUILD_INFO=$(jf rt curl "/api/build/aerospike-client-java-reactive/${ARTIFACT_BUILD_NUMBER}?project=database" | jq -c ".")
         echo artifact-build-info="${ARTIFACT_BUILD_INFO}" >> $GITHUB_OUTPUT
-
-        # DEBUG: Print the entire artifact build info to see its structure
-        echo "=== FULL ARTIFACT BUILD INFO ==="
-        echo "${ARTIFACT_BUILD_INFO}" | jq '.'
-        echo "=== END ==="
-
-        ARTIFACT_NAME=$(echo "${ARTIFACT_BUILD_INFO}" | jq -r '.buildInfo.modules[0].id')
+        
+        # Extract artifact name from the path (com/aerospike/ARTIFACT_NAME/VERSION/...)
+        ARTIFACT_NAME=$(echo "${ARTIFACT_BUILD_INFO}" | jq -r '.buildInfo.modules[0].artifacts[0].path' | cut -d'/' -f3)
         echo "Artifact Name: ${ARTIFACT_NAME}"
         echo artifact-name="${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
     
