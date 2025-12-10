@@ -111,6 +111,11 @@ runs:
 
         for ((i = 1; i <= NUMBER_OF_CHECKS; i++)); do
           RESPONSE=$(curl --request POST --silent --header "Authorization: Bearer ${TOKEN}" '${{ inputs.sonatype-domain-name }}/api/v1/publisher/status?id=${{ steps.stage-release.outputs.stage-release-id }}' | jq -cr '.')
+          echo "RAW SONATYPE RESPONSE:"
+          echo "-----------------------"
+          echo "${RESPONSE}"
+          echo "-----------------------"
+          
           SONATYPE_RESPONSE=$(echo "${RESPONSE}" | jq -cr '.deploymentState')
 
           if [[ ${SONATYPE_RESPONSE} == 'FAILED' ]]; then
