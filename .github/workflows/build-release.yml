@@ -80,6 +80,21 @@ jobs:
           fi
           cp "$file" build/
         done
+        
+        PARENT_ARTIFACT_ID=aerospike-client-java-reactive
+        PARENT_PATH="$LOCAL_REPO/$GROUP_PATH/$PARENT_ARTIFACT_ID/$VERSION"
+
+        echo "Parent artifact path: $PARENT_PATH"
+
+        if [ -d "$PARENT_PATH" ]; then
+          echo "Copying parent POM..."
+          cp "$PARENT_PATH"/*.pom build/
+          cp "$PARENT_PATH"/*.asc build/ 2>/dev/null || true
+        else
+          echo "WARNING: Parent POM not found in $PARENT_PATH"
+        fi
+        
+        ls -lar build/
       gh-artifact-directory: build
       gh-artifact-name: build-artifacts-${{ needs.extract-version.outputs.version }}
       gh-retention-days: 1
