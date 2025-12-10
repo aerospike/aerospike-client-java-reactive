@@ -189,7 +189,6 @@ jobs:
           VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "artifact-version=$VERSION" >> $GITHUB_OUTPUT
 
-
       - name: Debug show 'build-name-numbers' and 'artifact-version'
         run: |
           echo "build-name-number: ${{ steps.get-build-name-number.outputs.build-name-numbers }}"

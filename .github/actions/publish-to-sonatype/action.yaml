@@ -109,7 +109,6 @@ runs:
         TOKEN=$(printf "%s:%s" "${{ inputs.publish-user }}" "${{ inputs.publish-password }}" | base64)
         
         NUMBER_OF_CHECKS=${{ inputs.validation-max-number-checks }}
-        DUMMY_ID="this-is-not-a-real-id"
         
         echo "Starting Sonatype validation checks (max: ${NUMBER_OF_CHECKS})"
         
@@ -118,11 +117,6 @@ runs:
             --request POST \
             --header "Authorization: Bearer ${TOKEN}" \
             "${{ inputs.sonatype-domain-name }}/api/v1/publisher/status?id=${DUMMY_ID}")
-        
-          echo "RAW SONATYPE RESPONSE:"
-          echo "-----------------------"
-          echo "${RESPONSE}"
-          echo "-----------------------"
         
           # Validate JSON and extract deploymentState
           SONATYPE_RESPONSE=$(echo "${RESPONSE}" | jq -r '.deploymentState // "NULL"')
