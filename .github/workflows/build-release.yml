@@ -21,6 +21,8 @@ jobs:
     runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
       - name: Extract Version
         id: extract
         uses: ./.github/actions/get-version
@@ -56,7 +58,7 @@ jobs:
         LOCAL_REPO=$(mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)
         GROUP_ID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)
         ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
-        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        VERSION=${{ needs.extract-version.outputs.version }}
 
         GROUP_PATH=$(echo "$GROUP_ID" | tr '.' '/')
         ARTIFACT_PATH="$LOCAL_REPO/$GROUP_PATH/$ARTIFACT_ID/$VERSION"
