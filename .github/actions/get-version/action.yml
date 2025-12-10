@@ -26,9 +26,9 @@ runs:
         # Use Maven to evaluate the current version
         NEW_VERSION=$(mvn -q help:evaluate -Dexpression=project.version -DforceStdout)
 
-        echo "old versions: ${OLD_VERSIONS}, new versions: ${NEW_VERSIONS}"
+        echo "old versions: ${OLD_VERSION}, new versions: ${NEW_VERSION}"
 
-        if [[ "${OLD_VERSIONS}" != "${NEW_VERSIONS}" ]]; then
+        if [[ "${OLD_VERSION}" != "${NEW_VERSION}" ]]; then
           echo "is-snapshot=false" >> $GITHUB_OUTPUT
         else
           echo "is-snapshot=true" >> $GITHUB_OUTPUT
