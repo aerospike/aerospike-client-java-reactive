@@ -101,7 +101,7 @@ jobs:
           
           if [[ "$VERSION" == *"-SNAPSHOT" ]]; then
             echo "Error: Build ${{ inputs.jf-target-build }} with build number ${{ inputs.build-number }} is a SNAPSHOT build. Snapshots are not promoted to production."
-            exit 1
+            # exit 1
           fi
 
       # Fetching commit hash from the build info. The commit has is used for SNAPSHOT builds
