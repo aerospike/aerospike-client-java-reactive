@@ -7,7 +7,7 @@ inputs:
     required: false
     default: staging
   target-folder:
-    description: "Subfloder in the staging folder where the artifacts are copied"
+    description: "Subfolder in the staging folder where the artifacts are copied"
     required: false
     default: sonatype
   publish-user:
