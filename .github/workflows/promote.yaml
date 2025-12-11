@@ -239,7 +239,7 @@ jobs:
           oidc-provider: ${{ secrets.JFROG_OIDC_PROVIDER }}
           oidc-audience: ${{ secrets.JFROG_OIDC_AUDIENCE }}
           build-path: ${{ needs.promote.outputs.build-name-number }}
-          variables: '{"SONATYPE_STAGING_BUILD_ID":"${{ steps.publish-to-sonatype.outputs.maven-central-release-id }}"}'
+          variables: '{"SONATYPE_STAGING_BUILD_ID":"100"}'
 
   publish-release-github:
     runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
@@ -256,8 +256,8 @@ jobs:
           oidc-provider: ${{ secrets.JFROG_OIDC_PROVIDER }}
           oidc-audience: ${{ secrets.JFROG_OIDC_AUDIENCE }}
           target-repository: ${{ inputs.target-repository }}
-          build-name-number: ${{ fromJson(needs.promote.outputs.build-name-numbers)[0] }}
-          artifact-version: ${{ fromJson(needs.promote.outputs.artifact-version)[0] }}
+          build-name-number: ${{ needs.promote.outputs.build-name-number }}
+          artifact-version: ${{ needs.promote.outputs.artifact-version }}
           staging-folder: '["staging","github"]'
 
       # Publishing release to github

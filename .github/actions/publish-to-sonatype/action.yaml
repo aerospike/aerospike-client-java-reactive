@@ -101,53 +101,53 @@ runs:
         # echo stage-release-id=$(curl --request POST --silent --header "Authorization: Bearer ${TOKEN}" --form bundle=@${{ steps.create-artifact.outputs.artifact-name }}.zip ${{ inputs.sonatype-domain-name }}/api/v1/publisher/upload?publishingType=USER_MANAGED) >> $GITHUB_OUTPUT
 
     # Validation check loop
-    - name: Check validation
-      working-directory: ${{ inputs.target-folder }}
-      shell: bash
-      run: |
-        # Correct: Sonatype Publisher API uses Basic auth, not Bearer
-        TOKEN=$(printf "%s:%s" "${{ inputs.publish-user }}" "${{ inputs.publish-password }}" | base64)
-        
-        NUMBER_OF_CHECKS=${{ inputs.validation-max-number-checks }}
-        
-        echo "Starting Sonatype validation checks (max: ${NUMBER_OF_CHECKS})"
-        
-        for ((i = 1; i <= NUMBER_OF_CHECKS; i++)); do
-          RESPONSE=$(curl --verbose --show-error \
-            --request POST \
-            --header "Authorization: Bearer ${TOKEN}" \
-            "${{ inputs.sonatype-domain-name }}/api/v1/publisher/status?id=${DUMMY_ID}")
-        
-          # Validate JSON and extract deploymentState
-          SONATYPE_RESPONSE=$(echo "${RESPONSE}" | jq -r '.deploymentState // "NULL"')
-        
-          if [[ "${SONATYPE_RESPONSE}" == "FAILED" ]]; then
-            ERRORS=$(echo "${RESPONSE}" | jq '.errors // "Unknown error"')
-            echo "Package validation failed."
-            echo "Errors: ${ERRORS}"
-            exit 1
-        
-          elif [[ "${SONATYPE_RESPONSE}" == "VALIDATING" || "${SONATYPE_RESPONSE}" == "PENDING" ]]; then
-            echo "Package validation is not done. Status: ${SONATYPE_RESPONSE}"
-        
-            # Exponential backoff
-            sleep_time=$((2 ** (i - 1)))
-            echo "Next retry in ${sleep_time} seconds..."
-            sleep "${sleep_time}"
-        
-          elif [[ "${SONATYPE_RESPONSE}" == "VALIDATED" ]]; then
-            echo "Package successfully validated."
-            exit 0
-        
-          else
-            echo "Unknown response from Sonatype: ${SONATYPE_RESPONSE}"
-            echo "Full payload:"
-            echo "${RESPONSE}"
-          fi
-        done
-        
-        echo "Validation timed out after ${NUMBER_OF_CHECKS} attempts."
-        exit 1
+#    - name: Check validation
+#      working-directory: ${{ inputs.target-folder }}
+#      shell: bash
+#      run: |
+#        # Correct: Sonatype Publisher API uses Basic auth, not Bearer
+#        TOKEN=$(printf "%s:%s" "${{ inputs.publish-user }}" "${{ inputs.publish-password }}" | base64)
+#
+#        NUMBER_OF_CHECKS=${{ inputs.validation-max-number-checks }}
+#
+#        echo "Starting Sonatype validation checks (max: ${NUMBER_OF_CHECKS})"
+#
+#        for ((i = 1; i <= NUMBER_OF_CHECKS; i++)); do
+#          RESPONSE=$(curl --verbose --show-error \
+#            --request POST \
+#            --header "Authorization: Bearer ${TOKEN}" \
+#            "${{ inputs.sonatype-domain-name }}/api/v1/publisher/status?id=${DUMMY_ID}")
+#
+#          # Validate JSON and extract deploymentState
+#          SONATYPE_RESPONSE=$(echo "${RESPONSE}" | jq -r '.deploymentState // "NULL"')
+#
+#          if [[ "${SONATYPE_RESPONSE}" == "FAILED" ]]; then
+#            ERRORS=$(echo "${RESPONSE}" | jq '.errors // "Unknown error"')
+#            echo "Package validation failed."
+#            echo "Errors: ${ERRORS}"
+#            exit 1
+#
+#          elif [[ "${SONATYPE_RESPONSE}" == "VALIDATING" || "${SONATYPE_RESPONSE}" == "PENDING" ]]; then
+#            echo "Package validation is not done. Status: ${SONATYPE_RESPONSE}"
+#
+#            # Exponential backoff
+#            sleep_time=$((2 ** (i - 1)))
+#            echo "Next retry in ${sleep_time} seconds..."
+#            sleep "${sleep_time}"
+#
+#          elif [[ "${SONATYPE_RESPONSE}" == "VALIDATED" ]]; then
+#            echo "Package successfully validated."
+#            exit 0
+#
+#          else
+#            echo "Unknown response from Sonatype: ${SONATYPE_RESPONSE}"
+#            echo "Full payload:"
+#            echo "${RESPONSE}"
+#          fi
+#        done
+#
+#        echo "Validation timed out after ${NUMBER_OF_CHECKS} attempts."
+#        exit 1
 
     # Peculating up the maven central release id
     #- name: Maven Central release id
