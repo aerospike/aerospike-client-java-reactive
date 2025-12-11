@@ -21,15 +21,18 @@ jobs:
     runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
       - name: Extract Version
         id: extract
         uses: ./.github/actions/get-version
     outputs:
       version: ${{ steps.extract.outputs.release-version }}
+      is-snapshot: ${{ steps.extract.outputs.is-snapshot }}
 
   build-packages:
     needs: extract-version
-    uses: aerospike/shared-workflows/.github/workflows/reusable_execute-build.yaml@1c93424fa30c040b8420f4c3a5533b030bdc3865
+    uses: aerospike/shared-workflows/.github/workflows/reusable_execute-build.yaml@main
     with:
       runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
       jf-project: ${{ vars.JFROG_PROJECT }}
@@ -38,6 +41,7 @@ jobs:
       gh-checkout-path: shared-workflows
       gh-source-path: aerospike-client-java-reactive
       working-directory: aerospike-client-java-reactive
+      gh-workflows-ref: 6cb5bdb8999507dc067645a18b4179b119194190
       setup-java: true
       java-version: 8
       java-distribution: "temurin"
@@ -48,6 +52,11 @@ jobs:
         sleep 5
 
         # Maven build
+        if [ "${{ needs.extract-version.outputs.is-snapshot }}" == "true" ]; then
+          pom_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          mvn versions:set -DnewVersion="${pom_version}-SNAPSHOT" -DgenerateBackupPoms=false -DprocessAllModules
+        fi
+        
         mvn clean install -B -U -Dgpg.skip=true
 
         cd reactor-client
@@ -62,13 +71,30 @@ jobs:
 
         cd -
 
+        echo "ARTIFACT_PATH: $ARTIFACT_PATH"
         echo "Copying artifacts to ./build/"
+        
         for file in "$ARTIFACT_PATH"/*; do
           if [[ "$file" == *"-jar-with-dependencies.jar" ]] || [[ "$file" == *"_remote.repositories" ]]; then
             continue
           fi
           cp "$file" build/
         done
+        
+        PARENT_ARTIFACT_ID=aerospike-client-java-reactive
+        PARENT_PATH="$LOCAL_REPO/$GROUP_PATH/$PARENT_ARTIFACT_ID/$VERSION"
+
+        echo "Parent artifact path: $PARENT_PATH"
+
+        if [ -d "$PARENT_PATH" ]; then
+          echo "Copying parent POM..."
+          cp "$PARENT_PATH"/*.pom build/
+          cp "$PARENT_PATH"/*.asc build/ 2>/dev/null || true
+        else
+          echo "WARNING: Parent POM not found in $PARENT_PATH"
+        fi
+        
+        ls -lar build/
       gh-artifact-directory: build
       gh-artifact-name: build-artifacts-${{ needs.extract-version.outputs.version }}
       gh-retention-days: 1
@@ -79,11 +105,12 @@ jobs:
 
   sign-artifacts:
     needs: [build-packages, extract-version]
-    uses: aerospike/shared-workflows/.github/workflows/reusable_sign-artifacts.yaml@1c93424fa30c040b8420f4c3a5533b030bdc3865
+    uses: aerospike/shared-workflows/.github/workflows/reusable_sign-artifacts.yaml@main
     with:
       gh-retention-days: 1
       gh-artifact-name: signed_build-artifacts-${{ needs.extract-version.outputs.version }}
       gh-unsigned-artifacts: build-artifacts-${{ needs.extract-version.outputs.version }}
+      gh-workflows-ref: 6cb5bdb8999507dc067645a18b4179b119194190
     secrets:
       gpg-private-key: ${{ secrets.GPG_SECRET_KEY }}
       gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
@@ -91,9 +118,9 @@ jobs:
 
   deploy-artifacts:
     needs: [sign-artifacts, extract-version]
-    uses: aerospike/shared-workflows/.github/workflows/reusable_deploy-artifacts.yaml@1c93424fa30c040b8420f4c3a5533b030bdc3865
+    uses: aerospike/shared-workflows/.github/workflows/reusable_deploy-artifacts.yaml@6cb5bdb8999507dc067645a18b4179b119194190
     with:
-      gh-workflows-ref: 1c93424fa30c040b8420f4c3a5533b030bdc3865
+      gh-workflows-ref: 6cb5bdb8999507dc067645a18b4179b119194190
       jf-project: ${{ vars.JFROG_PROJECT }}
       jf-build-name: aerospike-client-java-reactive
       jf-metadata-build-id: ${{ github.run_number }}-buildinfo
@@ -107,11 +134,12 @@ jobs:
 
   create-release-bundle:
     needs: [extract-version, deploy-artifacts]
-    uses: aerospike/shared-workflows/.github/workflows/reusable_create-release-bundle.yaml@1c93424fa30c040b8420f4c3a5533b030bdc3865
+    uses: aerospike/shared-workflows/.github/workflows/reusable_create-release-bundle.yaml@main
     with:
       jf-project: ${{ vars.JFROG_PROJECT }}
       jf-build-names: aerospike-client-java-reactive:${{ github.run_number }}
       jf-bundle-name: aerospike-client-java-reactive
+      gh-workflows-ref: 6cb5bdb8999507dc067645a18b4179b119194190
       version: ${{ needs.extract-version.outputs.version }}
       oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
       oidc-audience: ${{ vars.OIDC_AUDIENCE }}
