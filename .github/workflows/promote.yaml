@@ -87,7 +87,7 @@ jobs:
         run: |
           BUILD_INFO='${{ steps.get-build-info.outputs.build-info }}'
           BUILD_ID=$(echo "$BUILD_INFO" | jq -r '.buildInfo.modules[] | select(.id | test("buildinfo")) | .id')
-          
+          # extracting snapshot from build-nfo name. Not ideal, but we don't have is_snapshot information in JF yet          
           # Extract version from build ID
           # Format: <artifact>/<number>-buildinfo-<version>_hash
           if [[ "$BUILD_ID" =~ buildinfo-([0-9]+\.[0-9]+\.[0-9]+(-SNAPSHOT)?)_ ]]; then
@@ -143,7 +143,7 @@ jobs:
           fi
     
           echo "Promoting build '$BUILD_NAME' (build #$BUILD_NUMBER) to ${{ inputs.target-repository }}"
-          # jf rt build-promote --copy=true "$BUILD_NAME" "$BUILD_NUMBER" "${{ inputs.target-repository }}"
+          jf rt build-promote --copy=true "$BUILD_NAME" "$BUILD_NUMBER" "${{ inputs.target-repository }}"
 
       # Fetching release notes from commit logs
       - name: Generate release notes
@@ -163,24 +163,24 @@ jobs:
         shell: bash
         run: |
           # Making sure we have latest history in place to be able to fast forward merge
-          echo "git status"
-          echo "git checkout ${{ inputs.source-branch }}"
-          echo "git checkout ${{ inputs.target-branch }}"
-          echo "git merge --ff-only ${{ inputs.source-branch }}"
+          git status
+          git checkout ${{ inputs.source-branch }}
+          git checkout ${{ inputs.target-branch }}
+          git merge --ff-only ${{ inputs.source-branch }}
 
       # Adding commit message for promotion
-      # - name: Add tagging message
-      #  uses: stefanzweifel/git-auto-commit-action@v4
-      #  with:
-      #    commit_message: "Promote to prod [skip ci]"
-      #    commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-      #    tagging_message: Promote to PROD
-      #    branch: ${{ inputs.target-branch }}
+      - name: Add tagging message
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Promote to prod [skip ci]"
+          commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          tagging_message: Promote to PROD
+          branch: ${{ inputs.target-branch }}
 
       # Pushing changes to remote head branch
-      #- name: Upload changes to remote head branch
-      #  shell: bash
-      #  run: git push
+      - name: Upload changes to remote head branch
+        shell: bash
+        run: git push
 
       # Passing build-name-numbers and artifact-version to the next job
       - name: Get build name with build number
@@ -261,7 +261,7 @@ jobs:
           oidc-provider: ${{ secrets.JFROG_OIDC_PROVIDER }}
           oidc-audience: ${{ secrets.JFROG_OIDC_AUDIENCE }}
           build-path: ${{ needs.promote.outputs.build-name-number }}
-          variables: '{"SONATYPE_STAGING_BUILD_ID":"100"}'
+          variables: '{"SONATYPE_STAGING_BUILD_ID":"${{ steps.publish-to-sonatype.outputs.maven-central-release-id }}"}'
 
   publish-release-github:
     runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
@@ -288,5 +288,5 @@ jobs:
         with:
           release-notes: ${{ needs.promote.outputs.release-notes }}
           github-token: ${{ secrets.CLIENT_BOT_PAT }}
-          build-name-number: ${{ needs.promote.outputs.build-name-numbers }} # json format
-          artifact-version: ${{ needs.promote.outputs.artifact-version }}    # json format
+          build-name-number: ${{ needs.promote.outputs.build-name-numbers }}
+          artifact-version: ${{ needs.promote.outputs.artifact-version }}

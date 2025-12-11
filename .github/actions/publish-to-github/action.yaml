@@ -38,8 +38,8 @@ runs:
     - id: get-artifact-version
       shell: bash
       run: |
-        VERSION=$(echo '${{ inputs.artifact-version }}' | jq -r '.[]')
-        echo artifact-version="${VERSION}" >> $GITHUB_OUTPUT
+        VERSION="${{ inputs.artifact-version }}"
+        echo "artifact-version=${VERSION}" >> $GITHUB_OUTPUT
 
     - name: Create upload archive for github
       id: create-artifact
@@ -56,7 +56,7 @@ runs:
       working-directory: ${{ inputs.target-folder }}
       shell: bash
       run: |
-        ARTIFACTS=$(ls | sed 's/^/${{ inputs.target-folder }}\//')
+        ARTIFACTS=$(ls | sed "s|^|${{ inputs.target-folder }}/|")
 
         echo "release-artifacts<<EOF" >> $GITHUB_OUTPUT
         echo "${ARTIFACTS}" >> $GITHUB_OUTPUT
@@ -78,14 +78,14 @@ runs:
         echo "body: ${{ inputs.release-notes }}"
         echo "files: ${{ steps.get-github-release-artifact-names.outputs.release-artifacts }}"
 
-    #- name: Publish release to github
-    #  uses: softprops/action-gh-release@v2
-    #  with:
-    #    token: ${{ inputs.github-token }}
-    #    tag_name: ${{ steps.get-artifact-version.outputs.artifact-version }}
-    #   body: |
-    #      Changes for release ${{ steps.get-artifact-version.outputs.artifact-version }}
-    #      "${{ inputs.release-notes }}"
-    #    draft: true
-    #    prerelease: false
-    #    files: ${{ steps.get-github-release-artifact-names.outputs.release-artifacts }}
+    - name: Publish release to github
+      uses: softprops/action-gh-release@v2
+      with:
+        token: ${{ inputs.github-token }}
+        tag_name: ${{ steps.get-artifact-version.outputs.artifact-version }}
+        body: |
+          Changes for release ${{ steps.get-artifact-version.outputs.artifact-version }}
+          ${{ inputs.release-notes }}
+        draft: true
+        prerelease: false
+        files: ${{ steps.get-github-release-artifact-names.outputs.release-artifacts }}
