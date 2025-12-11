@@ -41,7 +41,7 @@ jobs:
       gh-checkout-path: shared-workflows
       gh-source-path: aerospike-client-java-reactive
       working-directory: aerospike-client-java-reactive
-      gh-workflows-ref: e56cdc00c8d244a9b34c742d766cc81d337740b4
+      gh-workflows-ref: fd42c66ea609306f1f0edc27dab2843726a707c1
       setup-java: true
       java-version: 8
       java-distribution: "temurin"
@@ -110,7 +110,7 @@ jobs:
       gh-retention-days: 1
       gh-artifact-name: signed_build-artifacts-${{ needs.extract-version.outputs.version }}
       gh-unsigned-artifacts: build-artifacts-${{ needs.extract-version.outputs.version }}
-      gh-workflows-ref: e56cdc00c8d244a9b34c742d766cc81d337740b4
+      gh-workflows-ref: fd42c66ea609306f1f0edc27dab2843726a707c1
     secrets:
       gpg-private-key: ${{ secrets.GPG_SECRET_KEY }}
       gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
@@ -120,7 +120,7 @@ jobs:
     needs: [sign-artifacts, extract-version]
     uses: aerospike/shared-workflows/.github/workflows/reusable_deploy-artifacts.yaml@main
     with:
-      gh-workflows-ref: e56cdc00c8d244a9b34c742d766cc81d337740b4
+      gh-workflows-ref: fd42c66ea609306f1f0edc27dab2843726a707c1
       jf-project: ${{ vars.JFROG_PROJECT }}
       jf-build-name: aerospike-client-java-reactive
       jf-metadata-build-id: ${{ github.run_number }}-buildinfo
@@ -139,7 +139,7 @@ jobs:
       jf-project: ${{ vars.JFROG_PROJECT }}
       jf-build-names: aerospike-client-java-reactive:${{ github.run_number }}
       jf-bundle-name: aerospike-client-java-reactive
-      gh-workflows-ref: e56cdc00c8d244a9b34c742d766cc81d337740b4
+      gh-workflows-ref: fd42c66ea609306f1f0edc27dab2843726a707c1
       version: ${{ needs.extract-version.outputs.version }}
       oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
       oidc-audience: ${{ vars.OIDC_AUDIENCE }}
