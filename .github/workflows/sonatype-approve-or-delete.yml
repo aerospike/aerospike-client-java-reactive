@@ -2,6 +2,8 @@ name: Approve or Delete Sonatype Deployment
 run-name: "Sonatype Deployment: ${{ inputs.action }} ${{ inputs.stage-release-id }}"
 # https://central.sonatype.org/publish/publish-portal-api/#verify-status-of-the-deployment
 
+permissions: {}
+
 on:
   workflow_dispatch:
     inputs:
