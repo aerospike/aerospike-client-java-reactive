@@ -79,8 +79,8 @@ runs:
         RELEASE_BUILD_NUMBER=$(echo "${{ inputs.build-name-number }}" | sed -E 's/.*\/([^/]+)$/\1/')
         ARTIFACT_NAME="${RELEASE}_${RELEASE_BUILD_NUMBER}"
 
-        echo "artifact-name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
-        zip -r "${ARTIFACT_NAME}" .
+        echo "artifact-name=${ARTIFACT_NAME}.zip" >> $GITHUB_OUTPUT
+        zip -r "${ARTIFACT_NAME}.zip" .
 
     - name: Debug show content of the upload archive
       shell: bash
@@ -97,26 +97,30 @@ runs:
       run: |
         TOKEN=$(printf "${{ inputs.publish-user }}:${{ inputs.publish-password }}" | base64)
 
-        echo "curl --request POST --verbose --header 'Authorization: Bearer ${TOKEN}' --form bundle=@${{ steps.create-artifact.outputs.artifact-name }}.zip ${{ inputs.sonatype-domain-name }}/api/v1/publisher/upload?publishingType=USER_MANAGED"
-        echo stage-release-id=$(curl --request POST --silent --header "Authorization: Bearer ${TOKEN}" --form bundle=@${{ steps.create-artifact.outputs.artifact-name }}.zip ${{ inputs.sonatype-domain-name }}/api/v1/publisher/upload?publishingType=USER_MANAGED) >> $GITHUB_OUTPUT
+        echo "curl --request POST --silent --header 'Authorization: Bearer ${TOKEN}' --form bundle=@${{ steps.create-artifact.outputs.artifact-name }} ${{ inputs.sonatype-domain-name }}/api/v1/publisher/upload?publishingType=USER_MANAGED"
+        DEPLOYMENT_ID=$(curl --request POST --silent --header "Authorization: Bearer ${TOKEN}" --form bundle=@${{ steps.create-artifact.outputs.artifact-name }} ${{ inputs.sonatype-domain-name }}/api/v1/publisher/upload?publishingType=USER_MANAGED)
+    
+        echo "Deployment ID: ${DEPLOYMENT_ID}"
+        echo "deployment-id=${DEPLOYMENT_ID}" >> $GITHUB_OUTPUT
 
     # Validation check loop
     - name: Check validation
       working-directory: ${{ inputs.target-folder }}
       shell: bash
       run: |
-        # Correct: Sonatype Publisher API uses Basic auth, not Bearer
+
         TOKEN=$(printf "%s:%s" "${{ inputs.publish-user }}" "${{ inputs.publish-password }}" | base64)
+        DEPLOYMENT_ID="${{ steps.stage-release.outputs.deployment-id }}"
 
         NUMBER_OF_CHECKS=${{ inputs.validation-max-number-checks }}
 
         echo "Starting Sonatype validation checks (max: ${NUMBER_OF_CHECKS})"
 
         for ((i = 1; i <= NUMBER_OF_CHECKS; i++)); do
-          RESPONSE=$(curl --verbose --show-error \
+          RESPONSE=$(curl --silent --show-error \
             --request POST \
             --header "Authorization: Bearer ${TOKEN}" \
-            "${{ inputs.sonatype-domain-name }}/api/v1/publisher/status?id=${DUMMY_ID}")
+            "${{ inputs.sonatype-domain-name }}/api/v1/publisher/status?id=${DEPLOYMENT_ID}")
 
           # Validate JSON and extract deploymentState
           SONATYPE_RESPONSE=$(echo "${RESPONSE}" | jq -r '.deploymentState // "NULL"')
@@ -155,4 +159,4 @@ runs:
       id: get-maven-central-release-id
       shell: bash
       run: |
-        echo "maven-central-release-id=${{ steps.stage-release.outputs.stage-release-id }}" >> $GITHUB_OUTPUT
+        echo "maven-central-release-id=${{ steps.stage-release.outputs.deployment-id }}" >> $GITHUB_OUTPUT

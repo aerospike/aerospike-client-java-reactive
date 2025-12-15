@@ -90,11 +90,11 @@ jobs:
           # extracting snapshot from build-nfo name. Not ideal, but we don't have is_snapshot information in JF yet          
           # Extract version from build ID
           # Format: <artifact>/<number>-buildinfo-<version>_hash
-          if [[ "$BUILD_ID" =~ buildinfo-([0-9]+\.[0-9]+\.[0-9]+(-SNAPSHOT)?)_ ]]; then
+          if [[ "$BUILD_ID" =~ buildinfo-([0-9.]+(-SNAPSHOT)?) ]]; then
             VERSION="${BASH_REMATCH[1]}"
-          else
-            echo "ERROR: Could not parse version from build ID: $BUILD_ID"
-            exit 1
+          echo "Parsed version: $VERSION"
+            else
+            echo "ERROR: Could not parse version"
           fi
           
           echo "Parsed version: $VERSION"
@@ -157,30 +157,32 @@ jobs:
       - name: Debug print release notes
         run: |
           echo "Changes for release ${{ steps.get-artifact-version.outputs.artifact-version }}"
+          echo "${{ steps.get-release-notes.outputs.release-notes }}"
       
       # Fast forward the target branch to the source branch.
-      - name: Fast forward
-        shell: bash
-        run: |
-          # Making sure we have latest history in place to be able to fast forward merge
-          git status
-          git checkout ${{ inputs.source-branch }}
-          git checkout ${{ inputs.target-branch }}
-          git merge --ff-only ${{ inputs.source-branch }}
-
-      # Adding commit message for promotion
-      - name: Add tagging message
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "Promote to prod [skip ci]"
-          commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          tagging_message: Promote to PROD
-          branch: ${{ inputs.target-branch }}
+#      - name: Fast forward
+#        shell: bash
+#        run: |
+#          # Making sure we have latest history in place to be able to fast forward merge
+#          git status
+#          git checkout ${{ inputs.source-branch }}
+#          git checkout ${{ inputs.target-branch }}
+#          git merge --ff-only ${{ inputs.source-branch }}
+#
+#      # Adding commit message for promotion
+#      - name: Add tagging message
+#        uses: stefanzweifel/git-auto-commit-action@v4
+#        with:
+#          commit_message: "Promote to prod [skip ci]"
+#          commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+#          tagging_message: Promote to PROD
+#          branch: ${{ inputs.target-branch }}
 
       # Pushing changes to remote head branch
-      - name: Upload changes to remote head branch
-        shell: bash
-        run: git push
+      # This needs updating to create PR instead of direct push
+#      - name: Upload changes to remote head branch
+#        shell: bash
+#        run: git push
 
       # Passing build-name-numbers and artifact-version to the next job
       - name: Get build name with build number

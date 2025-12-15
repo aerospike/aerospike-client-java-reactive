@@ -124,18 +124,24 @@ runs:
       working-directory: ${{ fromJson(inputs.staging-folder)[0] }}
       run: |
         BUILD_INFO='${{ steps.get-artifact-build-info.outputs.artifact-build-info }}'
-        MODULES=$(echo "${BUILD_INFO}" | jq -c '.buildInfo.modules[].artifacts[]')
-        STAGE_DIR="$(find . -type f -name '*.jar' -exec realpath {} \; | head -n 1 | xargs dirname)"
         
-        for MODULE in ${MODULES}; do
+        # Process artifacts from build info
+        echo "Creating checksums from build info..."
+        echo "${BUILD_INFO}" | jq -c '.buildInfo.modules[].artifacts[]' | while read -r MODULE; do
           NAME=$(echo "${MODULE}" | jq -r ".name")
           SHA1=$(echo "${MODULE}" | jq -r ".sha1")
           SHA256=$(echo "${MODULE}" | jq -r ".sha256")
           MD5=$(echo "${MODULE}" | jq -r ".md5")
         
-          FILE_NAME="${STAGE_DIR}/${NAME}"
-          echo "$FILE_NAME"
-          echo "${SHA1}" >"${FILE_NAME}.sha1"
-          echo "${SHA256}" >"${FILE_NAME}.sha256"
-          echo "${MD5}" >"${FILE_NAME}.md5"
+          FILE_PATH=$(find . -type f -name "${NAME}" | head -n 1)
+        
+          if [[ -z "${FILE_PATH}" ]]; then
+            echo "Warning: Could not find file ${NAME}"
+            continue
+          fi
+        
+          echo "Creating checksums for: ${FILE_PATH}"
+          echo "${SHA1}" > "${FILE_PATH}.sha1"
+          echo "${SHA256}" > "${FILE_PATH}.sha256"
+          echo "${MD5}" > "${FILE_PATH}.md5"
         done
