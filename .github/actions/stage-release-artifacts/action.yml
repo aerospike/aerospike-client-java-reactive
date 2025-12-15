@@ -124,15 +124,15 @@ runs:
       working-directory: ${{ fromJson(inputs.staging-folder)[0] }}
       run: |
         BUILD_INFO='${{ steps.get-artifact-build-info.outputs.artifact-build-info }}'
-        MODULES=$(echo "${BUILD_INFO}" | jq -c '.buildInfo.modules[].artifacts[]')
         
-        for MODULE in ${MODULES}; do
+        # Process artifacts from build info
+        echo "Creating checksums from build info..."
+        echo "${BUILD_INFO}" | jq -c '.buildInfo.modules[].artifacts[]' | while read -r MODULE; do
           NAME=$(echo "${MODULE}" | jq -r ".name")
           SHA1=$(echo "${MODULE}" | jq -r ".sha1")
           SHA256=$(echo "${MODULE}" | jq -r ".sha256")
           MD5=$(echo "${MODULE}" | jq -r ".md5")
         
-          # Find the actual file location (it should already be downloaded)
           FILE_PATH=$(find . -type f -name "${NAME}" | head -n 1)
         
           if [[ -z "${FILE_PATH}" ]]; then
@@ -144,4 +144,17 @@ runs:
           echo "${SHA1}" > "${FILE_PATH}.sha1"
           echo "${SHA256}" > "${FILE_PATH}.sha256"
           echo "${MD5}" > "${FILE_PATH}.md5"
+        done
+        
+        # XXX: Hacky - needs fixing in the publish to JF portions
+        # Generate checksums for any remaining files (like javadoc)
+        echo ""
+        echo "Generating checksums for files not in build info..."
+        find . -type f \( -name "*.jar" -o -name "*.pom" -o -name "*.asc" \) | while read -r FILE; do
+          if [[ ! -f "${FILE}.md5" ]]; then
+            echo "Generating checksums for: ${FILE}"
+            md5sum "${FILE}" | awk '{print $1}' > "${FILE}.md5"
+            sha1sum "${FILE}" | awk '{print $1}' > "${FILE}.sha1"
+            sha256sum "${FILE}" | awk '{print $1}' > "${FILE}.sha256"
+          fi
         done
