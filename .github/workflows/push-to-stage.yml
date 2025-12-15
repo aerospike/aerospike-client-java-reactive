@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - stage
+      - CLIENT-3877-fix-fetching-tag
     tags:
       - 'v*'
   workflow_dispatch:
