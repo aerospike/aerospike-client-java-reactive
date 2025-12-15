@@ -79,8 +79,8 @@ runs:
         RELEASE_BUILD_NUMBER=$(echo "${{ inputs.build-name-number }}" | sed -E 's/.*\/([^/]+)$/\1/')
         ARTIFACT_NAME="${RELEASE}_${RELEASE_BUILD_NUMBER}"
 
-        echo "artifact-name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
-        zip -r "${ARTIFACT_NAME}" .
+        echo "artifact-name=${ARTIFACT_NAME}.zip" >> $GITHUB_OUTPUT
+        zip -r "${ARTIFACT_NAME}.zip" .
 
     - name: Debug show content of the upload archive
       shell: bash
@@ -97,8 +97,8 @@ runs:
       run: |
         TOKEN=$(printf "${{ inputs.publish-user }}:${{ inputs.publish-password }}" | base64)
 
-        echo "curl --request POST --verbose --header 'Authorization: Bearer ${TOKEN}' --form bundle=@${{ steps.create-artifact.outputs.artifact-name }}.zip ${{ inputs.sonatype-domain-name }}/api/v1/publisher/upload?publishingType=USER_MANAGED"
-        DEPLOYMENT_ID=$(curl --request POST --silent --header "Authorization: Bearer ${TOKEN}" --form bundle=@${{ steps.create-artifact.outputs.artifact-name }}.zip ${{ inputs.sonatype-domain-name }}/api/v1/publisher/upload?publishingType=USER_MANAGED)
+        echo "curl --request POST --verbose --header 'Authorization: Bearer ${TOKEN}' --form bundle=@${{ steps.create-artifact.outputs.artifact-name }} ${{ inputs.sonatype-domain-name }}/api/v1/publisher/upload?publishingType=USER_MANAGED"
+        DEPLOYMENT_ID=$(curl --request POST --verbose --header "Authorization: Bearer ${TOKEN}" --form bundle=@${{ steps.create-artifact.outputs.artifact-name }} ${{ inputs.sonatype-domain-name }}/api/v1/publisher/upload?publishingType=USER_MANAGED)
     
         echo "Deployment ID: ${DEPLOYMENT_ID}"
         echo "deployment-id=${DEPLOYMENT_ID}" >> $GITHUB_OUTPUT
