@@ -95,9 +95,15 @@ runs:
         TOKEN=$(printf "%s:%s" "${{ inputs.publish-user }}" "${{ inputs.publish-password }}" | base64)
         
         echo "Attempting to list recent deployments..."
-        curl --silent --request GET \
+        RESPONSE=$(curl --silent --request GET \
           --header "Authorization: Bearer ${TOKEN}" \
-          "${{ inputs.sonatype-domain-name }}/api/v1/publisher/deployments" | jq .
+          "${{ inputs.sonatype-domain-name }}/api/v1/publisher/deployments")
+        
+        echo "Raw response:"
+        echo "${RESPONSE}"
+        
+        echo "Attempting to parse as JSON:"
+        echo "${RESPONSE}" | jq . 2>&1 || echo "Not valid JSON"
 
     # Call to Maven Central to stage the release/artifact
 #    - name: Stage artifacts
