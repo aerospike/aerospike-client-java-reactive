@@ -126,6 +126,7 @@ jobs:
       jf-metadata-build-id: ${{ github.run_number }}-buildinfo
       jf-build-id: ${{ github.run_number }}
       gh-artifact-name: ${{ needs.sign-artifacts.outputs.gh-artifact-name }}
+      jar-group-id: com.aerospike
       version: ${{ needs.extract-version.outputs.version }}
       gh-retention-days: 1
       oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
