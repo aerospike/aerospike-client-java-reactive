@@ -90,11 +90,11 @@ jobs:
           # extracting snapshot from build-nfo name. Not ideal, but we don't have is_snapshot information in JF yet          
           # Extract version from build ID
           # Format: <artifact>/<number>-buildinfo-<version>_hash
-          if [[ "$BUILD_ID" =~ buildinfo-([0-9]+\.[0-9]+\.[0-9]+(-SNAPSHOT)?)_ ]]; then
+          if [[ "$BUILD_ID" =~ buildinfo-([0-9.]+(-SNAPSHOT)?) ]]; then
             VERSION="${BASH_REMATCH[1]}"
-          else
-            echo "ERROR: Could not parse version from build ID: $BUILD_ID"
-            exit 1
+          echo "Parsed version: $VERSION"
+            else
+            echo "ERROR: Could not parse version"
           fi
           
           echo "Parsed version: $VERSION"

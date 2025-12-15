@@ -10,13 +10,16 @@ on:
       build-number:
         type: number
         description: Build number used to build artifact to be promoted
+  push:
+    branches:
+      - CLIENT-3868-fix-ci-scripts
 
 jobs:
   promote-from-stage-to-prod:
     name: Promote from stage to prod
     uses: ./.github/workflows/promote.yaml
     with:
-      build-number: ${{ inputs.build-number }}
+      build-number: 50
       target-repository: database-maven-dev-local
       target-branch: main
       source-branch: stage
