@@ -28,7 +28,7 @@ jobs:
           cache: 'maven'
 
       - name: Set up Aerospike Database
-        uses: aerospike/shared-workflows/.github/actions/setup-aerospike-server@5d47f163bac310eff8ba856c74f9ff7d107f696e
+        uses: aerospike/shared-workflows/.github/actions/setup-aerospike-server@334ad55b790658d549747b0d154407dfc730acca
         with:
           oidc-provider: ${{ secrets.JFROG_OIDC_PROVIDER }}
           oidc-audience: ${{ secrets.JFROG_OIDC_AUDIENCE }}
