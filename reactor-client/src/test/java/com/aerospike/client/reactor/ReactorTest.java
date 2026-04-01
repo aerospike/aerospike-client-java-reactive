@@ -21,6 +21,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
+import com.aerospike.client.async.*;
+import com.aerospike.client.async.EventPolicy;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.epoll.EpollIoHandler;
+import io.netty.channel.nio.NioIoHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -31,17 +36,11 @@ import com.aerospike.client.Bin;
 import com.aerospike.client.Host;
 import com.aerospike.client.Key;
 import com.aerospike.client.Record;
-import com.aerospike.client.async.EventLoopType;
-import com.aerospike.client.async.EventLoops;
-import com.aerospike.client.async.NettyEventLoops;
-import com.aerospike.client.async.NioEventLoops;
 import com.aerospike.client.policy.ClientPolicy;
 import com.aerospike.client.query.KeyRecord;
 import com.aerospike.client.reactor.util.Args;
 
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 
 @RunWith(Parameterized.class)
 abstract public class ReactorTest {
@@ -75,14 +74,14 @@ abstract public class ReactorTest {
 			}
 
 			case NETTY_NIO: {
-				EventLoopGroup group = new NioEventLoopGroup(1);
-				eventLoops = new NettyEventLoops(group);
+				EventLoopGroup group = new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory());
+				eventLoops = new NettyEventLoops(new EventPolicy(), group, EventLoopType.NETTY_NIO);
 				break;
 			}
 
 			case NETTY_EPOLL: {
-				EventLoopGroup group = new EpollEventLoopGroup(1);
-				eventLoops = new NettyEventLoops(group);
+				EventLoopGroup group = new MultiThreadIoEventLoopGroup(1, EpollIoHandler.newFactory());
+				eventLoops = new NettyEventLoops(new EventPolicy(), group, EventLoopType.NETTY_EPOLL);
 				break;
 			}
 		}
@@ -144,5 +143,4 @@ abstract public class ReactorTest {
 			throw new IllegalArgumentException("Failed to get: namespace=" + args.namespace + " set=" + args.set + " key=" + key.userKey);
 		}
  	}
-
 }

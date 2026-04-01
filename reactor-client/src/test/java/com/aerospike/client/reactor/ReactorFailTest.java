@@ -108,10 +108,12 @@ abstract public class ReactorFailTest extends ReactorTest{
 
 	@After
 	public void destroyProxy()  {
-		proxies.forEach(proxy -> {
-			proxy.unfreeze();
-			proxy.close();
-		});
+		if (proxies != null) {
+			proxies.forEach(proxy -> {
+				proxy.unfreeze();
+				proxy.close();
+			});
+		}
 	}
 
 	Policy strictReadPolicy() {
@@ -143,5 +145,4 @@ abstract public class ReactorFailTest extends ReactorTest{
 		strictPolicy.setTimeouts(1, 1);
 		return strictPolicy;
 	}
-
 }

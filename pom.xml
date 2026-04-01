@@ -7,7 +7,7 @@
     <name>aerospike-client-java-reactive</name>
     <description>aerospike-client-java-reactive</description>
     <url>https://github.com/aerospike/aerospike-client-java-reactive</url>
-    <version>9.2.0</version>
+    <version>10.0.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -22,16 +22,16 @@
 
         <java.version>1.8</java.version>
 
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
         <maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
 
-        <aerospike-client.version>9.2.0</aerospike-client.version>
-        <netty.version>4.2.7.Final</netty.version>
-        <commons-cli.version>1.10.0</commons-cli.version>
+        <aerospike-client.version>10.0.0</aerospike-client.version>
+        <netty.version>4.2.10.Final</netty.version>
+        <commons-cli.version>1.11.0</commons-cli.version>
         <junit.version>4.13.2</junit.version>
         <slf4j-api.version>2.0.17</slf4j-api.version>
     </properties>
@@ -71,12 +71,6 @@
                 <groupId>com.aerospike</groupId>
                 <artifactId>aerospike-client-jdk8</artifactId>
                 <version>${aerospike-client.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.aerospike</groupId>
-                <artifactId>aerospike-query-engine</artifactId>
-                <version>${project.version}</version>
             </dependency>
 
             <dependency>

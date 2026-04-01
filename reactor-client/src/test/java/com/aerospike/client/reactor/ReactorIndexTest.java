@@ -51,7 +51,7 @@ public class ReactorIndexTest extends ReactorTest {
     @Test
     public void shouldCreateAndDropExpressionBasedIndex() {
         Node node = client.getNodes()[0];
-        Version version= node.getVersion();
+        Version version= node.getServerVersion();
         assumeTrue(version.isGreaterOrEqual(Version.SERVER_VERSION_8_1));
 
         List<String> countries = Arrays.asList("Australia", "Canada", "USA");
