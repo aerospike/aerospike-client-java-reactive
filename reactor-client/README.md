@@ -4,7 +4,7 @@ Aerospike Reactor Java Client Library
 This project contains the files necessary to build the Java [Reactor](https://projectreactor.io/) client library 
 interface to Aerospike database servers. 
 
-AerospikeReactorClient now supports reactive methods. 
+Aerospike Reactor Client now supports reactive methods. 
 
 The Netty library artifacts (netty-transport and netty-handler) are declared optional.
 If your application's build file (pom.xml) declares these Netty library artifacts as 
