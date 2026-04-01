@@ -6,6 +6,7 @@ import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
 import com.aerospike.client.Operation;
 import com.aerospike.client.ResultCode;
+import com.aerospike.client.Value;
 import com.aerospike.client.cdt.CTX;
 import com.aerospike.client.cdt.ListOperation;
 import com.aerospike.client.cdt.ListReturnType;
@@ -99,7 +100,7 @@ public class RetryTest {
     @Test
     public void shouldRetryBatchOperations(){
 
-        when(reactorClient.get(ArgumentMatchers.<BatchPolicy>any(), any(), ArgumentMatchers.<Operation>any()))
+        when(reactorClient.get(ArgumentMatchers.<BatchPolicy>any(), any(), any(Operation[].class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.get(KEYS, OPS))
@@ -129,7 +130,7 @@ public class RetryTest {
     @Test
     public void shouldRetryBatchFluxOperations(){
 
-        when(reactorClient.getFlux(ArgumentMatchers.<BatchPolicy>any(), any(), ArgumentMatchers.<Operation>any()))
+        when(reactorClient.getFlux(ArgumentMatchers.<BatchPolicy>any(), any(), any(Operation[].class)))
                 .thenReturn(mockFluxErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.getFlux(KEYS, OPS))
@@ -269,7 +270,7 @@ public class RetryTest {
     @Test
     public void shouldRetryScanAll(){
 
-        when(reactorClient.scanAll(any(), any(), any(), any()))
+        when(reactorClient.scanAll(any(), any(), any(), any(String[].class)))
                 .thenReturn(mockFluxErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.scanAll("namespace", "setname", BIN_NAMES))
@@ -279,7 +280,7 @@ public class RetryTest {
     @Test
     public void shouldRetryExecute(){
 
-        when(reactorClient.execute(any(), any(), any(), any(),  any()))
+        when(reactorClient.execute(any(), any(), any(), any(), any(Value[].class)))
                 .thenReturn(mockMonoErrors(NO_CONNECTION, TIMEOUT));
 
         StepVerifier.create(retryClient.execute(KEY, "packageName", "functionName"))
