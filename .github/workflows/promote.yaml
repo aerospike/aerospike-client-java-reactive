@@ -1,8 +1,8 @@
 name: Promote
 
 permissions:
-  contents: write      # For creating releases
-  id-token: write      # For JFrog OIDC authentication
+  contents: write # For creating releases
+  id-token: write # For JFrog OIDC authentication
 
 on:
   workflow_call:
@@ -44,6 +44,11 @@ jobs:
       artifact-version: ${{ steps.get-artifact-version.outputs.artifact-version }}
       release-notes: ${{ steps.get-release-notes.outputs.release-notes }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          egress-policy: audit
+
       - name: Debug step
         run: |
           echo "build-number: ${{ inputs.build-number }}"
@@ -54,7 +59,7 @@ jobs:
 
       # Setting up jfrog cli
       - name: Setup jfrog shell
-        uses: jfrog/setup-jfrog-cli@v4
+        uses: step-security/setup-jfrog-cli@a6b41f8338bea0983ddff6bd4ede7d2dcd81e1fa # v4.8.1
         env:
           JF_URL: ${{ vars.JFROG_PLATFORM_URL }}
           JF_PROJECT: database
@@ -64,14 +69,14 @@ jobs:
 
       # Needed since we are using actions which are part of the repository
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           # Fetch the whole history to prevent unrelated history errors
           fetch-depth: "0"
           ref: ${{ inputs.target-branch }}
           token: ${{ secrets.CLIENT_BOT_PAT }}
 
-      # Getting build info which will allows us to get information about the build we are promoting
+      # Getting build info which will allow us to get information about the build we are promoting
       - name: Get info
         id: get-build-info
         run: |
@@ -87,7 +92,7 @@ jobs:
           
           echo build-info=$(jf rt curl "${API_PATH}" ) >> $GITHUB_OUTPUT
 
-      # Snapshot builds are not promoted to production.
+      # Snapshot builds are not promoted to production
       - name: Check if snapshot build
         id: check-snapshot
         run: |
@@ -110,7 +115,7 @@ jobs:
             # exit 1
           fi
 
-      # Fetching commit hash from the build info. The commit has is used for SNAPSHOT builds
+      # Fetching commit hash from the build info. The commit hash is used for SNAPSHOT builds
       - name: Get commit hash from repo
         id: get-commit-hash
         run: |
@@ -125,7 +130,8 @@ jobs:
           fi
           echo "commit-hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
 
-      # Fetching build name for build promotion process. The build name will contain build numbers. This command parses json and pulls out the build name
+      # Fetching build name for build promotion process. The build name will contain build numbers.
+      # This command parses json and pulls out the build name
       - name: Get build name
         id: get-build-name
         run: |
@@ -142,12 +148,12 @@ jobs:
         run: |
           BUILD_NAME="${{ steps.get-build-name.outputs.build-names }}"
           BUILD_NUMBER="${{ inputs.build-number }}"
-    
+          
           if [ -z "$BUILD_NAME" ]; then
             echo "Error: Missing build name"
             exit 1
           fi
-    
+          
           echo "Promoting build '$BUILD_NAME' (build #$BUILD_NUMBER) to ${{ inputs.target-repository }}"
           jf rt build-promote --copy=true "$BUILD_NAME" "$BUILD_NUMBER" "${{ inputs.target-repository }}"
 
@@ -164,31 +170,31 @@ jobs:
         run: |
           echo "Changes for release ${{ steps.get-artifact-version.outputs.artifact-version }}"
           echo "${{ steps.get-release-notes.outputs.release-notes }}"
-      
+
       # Fast forward the target branch to the source branch.
-#      - name: Fast forward
-#        shell: bash
-#        run: |
-#          # Making sure we have latest history in place to be able to fast forward merge
-#          git status
-#          git checkout ${{ inputs.source-branch }}
-#          git checkout ${{ inputs.target-branch }}
-#          git merge --ff-only ${{ inputs.source-branch }}
-#
-#      # Adding commit message for promotion
-#      - name: Add tagging message
-#        uses: stefanzweifel/git-auto-commit-action@v4
-#        with:
-#          commit_message: "Promote to prod [skip ci]"
-#          commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-#          tagging_message: Promote to PROD
-#          branch: ${{ inputs.target-branch }}
+      #      - name: Fast forward
+      #        shell: bash
+      #        run: |
+      #          # Making sure we have latest history in place to be able to fast forward merge
+      #          git status
+      #          git checkout ${{ inputs.source-branch }}
+      #          git checkout ${{ inputs.target-branch }}
+      #          git merge --ff-only ${{ inputs.source-branch }}
+      #
+      #      # Adding commit message for promotion
+      #      - name: Add tagging message
+      #        uses: stefanzweifel/git-auto-commit-action@v4
+      #        with:
+      #          commit_message: "Promote to prod [skip ci]"
+      #          commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+      #          tagging_message: Promote to PROD
+      #          branch: ${{ inputs.target-branch }}
 
       # Pushing changes to remote head branch
       # This needs updating to create PR instead of direct push
-#      - name: Upload changes to remote head branch
-#        shell: bash
-#        run: git push
+      #      - name: Upload changes to remote head branch
+      #        shell: bash
+      #        run: git push
 
       # Passing build-name-numbers and artifact-version to the next job
       - name: Get build name with build number
@@ -235,9 +241,14 @@ jobs:
     runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
     needs: promote
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          egress-policy: audit
+
       # Needed since we are using actions which are part of the repository
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.CLIENT_BOT_PAT }}
@@ -261,7 +272,7 @@ jobs:
           publish-password: ${{ secrets.AEROSPIKE_SA_CICD_PASSWORD }}
           validation-max-number-checks: ${{ vars.VALIDATION_MAX_NUMBER_CHECKS }}
           sonatype-domain-name: ${{ vars.SONATYPE_DOMAIN_NAME }}
-      
+
       # Publishing release information to JFrog for aggregation. This information is used later for final release step
       # (acknowledgement) to Maven Central
       - uses: ./.github/actions/publish-build-info-to-jfrog
@@ -274,9 +285,14 @@ jobs:
   publish-release-github:
     runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
     needs: [promote, publish-release-sonatype]
-    steps: 
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          egress-policy: audit
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: ${{ inputs.target-branch }}
           token: ${{ secrets.CLIENT_BOT_PAT }}
@@ -290,8 +306,8 @@ jobs:
           artifact-version: ${{ needs.promote.outputs.artifact-version }}
           staging-folder: '["staging","github"]'
 
-      # Publishing release to github
-      # Note this action knows how to process json internally. It expects inputs to be in json format
+      # Publishing release to GitHub
+      # Note: this action knows how to process json internally. It expects inputs to be in json format
       - uses: ./.github/actions/publish-to-github
         with:
           release-notes: ${{ needs.promote.outputs.release-notes }}
