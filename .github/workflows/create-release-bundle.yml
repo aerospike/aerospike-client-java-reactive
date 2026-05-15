@@ -61,9 +61,12 @@ jobs:
           pom_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           mvn versions:set -DnewVersion="${pom_version}-SNAPSHOT" -DgenerateBackupPoms=false -DprocessAllModules
         fi
+
         mvn clean install -B -U -Dgpg.skip=true -DskipTests
 
         pwd
+
+        cd reactor-client
 
         LOCAL_REPO=$(mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)
         GROUP_ID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)
@@ -72,6 +75,8 @@ jobs:
 
         GROUP_PATH=$(echo "$GROUP_ID" | tr '.' '/')
         ARTIFACT_PATH="$LOCAL_REPO/$GROUP_PATH/$ARTIFACT_ID/$VERSION"
+
+        cd -
 
         echo "ARTIFACT_PATH: $ARTIFACT_PATH"
         echo "Copying artifacts to ./build/"
