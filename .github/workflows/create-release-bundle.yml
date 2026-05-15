@@ -43,7 +43,7 @@ jobs:
     with:
       gh-artifact-directory: build
       gh-workflows-ref: 1004088a1b5122b9b71a39b40f619f6b50e78d16
-      jf-build-name: spring-data-aerospike-starters
+      jf-build-name: aerospike-client-java-reactive
       jf-project: ${{ vars.JFROG_PROJECT }}
       oidc-audience: ${{ vars.OIDC_AUDIENCE }}
       oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
@@ -52,7 +52,7 @@ jobs:
       setup-java: true
       java-version: "17"
       java-distribution: temurin
-      gh-source-path: spring-data-aerospike-starters
+      gh-source-path: aerospike-client-java-reactive
       gh-retention-days: 1
       runs-on: ${{ vars.BUILD_CONTAINER_DISTRO_VERSION }}
       build-script: |
@@ -83,7 +83,7 @@ jobs:
           cp "$file" build/
         done
 
-        PARENT_ARTIFACT_ID=spring-data-aerospike-starters
+        PARENT_ARTIFACT_ID=aerospike-client-java-reactive
         PARENT_PATH="$LOCAL_REPO/$GROUP_PATH/$PARENT_ARTIFACT_ID/$VERSION"
 
         echo "Parent artifact path: $PARENT_PATH"
@@ -108,7 +108,7 @@ jobs:
     with:
       jf-project: ${{ vars.JFROG_PROJECT }}
       jf-build-names: ${{ needs.build-sign-deploy.outputs.jf-build-name }}:${{ needs.build-sign-deploy.outputs.jf-build-id }}
-      jf-bundle-name: spring-data-aerospike-starters
+      jf-bundle-name: aerospike-client-java-reactive
       gh-workflows-ref: 1004088a1b5122b9b71a39b40f619f6b50e78d16
       version: ${{ needs.extract-version.outputs.version }}
       oidc-provider-name: ${{ vars.OIDC_PROVIDER_NAME }}
@@ -144,7 +144,7 @@ jobs:
       - name: Promoting release bundle to DEV
         uses: aerospike/shared-workflows/.github/actions/promote-release-bundle@8ec712eafbec26c8db8d1183688a5fd806560a95 # v3.5.0
         with:
-          bundle-name: spring-data-aerospike-starters
+          bundle-name: aerospike-client-java-reactive
           version: ${{ needs.extract-version.outputs.version }}
           environment: DEV
           jf-project: ${{ vars.JFROG_PROJECT }}
