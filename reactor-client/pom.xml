@@ -145,7 +145,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <doclint>none</doclint>
-                    <reportOutputDirectory>${basedir}</reportOutputDirectory>
+                    <outputDirectory>${basedir}</outputDirectory>
                     <doctitle>Aerospike Reactor Java Client</doctitle>
                     <show>public</show>
                     <splitindex>true</splitindex>
